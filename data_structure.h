@@ -24,8 +24,16 @@ struct MIMOSIS1_Integrated_Frame
 	/*! \brief Number of aquired frames in run*/
 	int nb_of_frames {0};
 	
+	/*! \brief map containig masked pixels (if bin value = 1)
+	 * \details The masked pixels are found by #PixelMask class. See details there*/
+	TH2D *h2_masked_pixels {nullptr};
+	
 	/*! \brief List of run analysis parameters
-	 * \details Stores the information about pulse high, threshold voltage and back bias values for this particular dataset */
+	 * \details Stores the information about pulse high, threshold voltage and back bias values for this particular dataset 
+	 * 
+	 * 
+	 * 
+	 * */
 	std::map<std::string, int> run_param;
 };
 
