@@ -11,14 +11,14 @@
 #include "data_structure.h"
 
 /*! \class 		MIMOSIS1_TreeReader
- *  \brief 		Opens one (or more) MIMOSIS 1 input data in ROOT format and saves the vector of MIMOSIS1_Integrated_Frame structures.
+ *  \brief 		Opens one (or more) MIMOSIS 1 input data in ROOT format and saves the vector of MIMOSIS1_Single_Run_Dataset structures.
  *  \author    	Roma Bugiel
  *  \date      	August 2020
  *  \pre       	ROOT installation
  *  \warning   	Exeception handling not added
  *	\details	This class should be adpated for particular MIMOSIS1 raw input data format. In this case it is dedicated to read in data from MIMOSIS1_DataCoverter that return the .root tree with the several of histograms. 
  * 
- * This class is able to read multiple .root MIMOSIS1 input data [for different values of analysis parameter such as pulse high, back bias and thereshold voltage], and saves the vector of MIMOSIS1_Integrated_Frame (data structure) which can be further provided for LabTest class for S-Curves generation.
+ * This class is able to read multiple .root MIMOSIS1 input data [for different values of analysis parameter such as pulse high, back bias and thereshold voltage], and saves the vector of MIMOSIS1_Single_Run_Dataset (data structure) which can be further provided for LabTest class for S-Curves generation.
  * The MIMOSIS1_TreeReader extracts the values of the analysis parameters basing on data provided in config_file.cfg 
  */
 
@@ -55,11 +55,14 @@ public:
 	 * 	 \return Number of scan value; size of the v_param_values*/
 	void	load_intput_files();
 	
-	/*!  \return vector of analysis parameter values v_param_values*/
-	std::vector<int>	get_scan_values();
+	/*!  \return MIMOSIS1_Single_Run_Dataset structure*/
+	MIMOSIS1_Single_Run_Dataset	get_data_structure();
 	
-	/*!  \return  vector of MIMOSIS1_Integrated_Frame structues */
-	std::vector<MIMOSIS1_Integrated_Frame>	get_integrated_frames();
+	/*!  \return vector of analysis parameter values v_param_values*/
+	std::vector<int> get_scan_values();
+	
+	/*!  \return  vector of MIMOSIS1_Single_Run_Dataset structues */
+	std::vector<MIMOSIS1_Single_Run_Dataset> get_integrated_frames();
 
 	/*!  \return  name of the parameter enabled for scan */
 	std::string	get_scanned_parameter_name();
@@ -92,8 +95,8 @@ public:
 	std::string _input_tree_file_name_core;	
 	std::string _input_tree_name;			//!< Name of the input tree.
 	
-	std::vector<MIMOSIS1_Integrated_Frame > 	v_MIM_int_frame; //!< Vector of structures MIMOSIS1_Integrated_Frame, passed further to LabTest.
-	std::vector<int> 							v_param_values;	//!< Vector of analysis parameters (scan values).
+	std::vector< MIMOSIS1_Single_Run_Dataset > 	v_MIM_int_frame; //!< Vector of structures MIMOSIS1_Single_Run_Dataset.
+	std::vector< int > 							v_param_values;	//!< Vector of analysis parameters (scan values).
 
 	//Input file tree variables 
 	unsigned short frames_in_run 	{0}; //!< Number of collected frames; how many frames were integrated

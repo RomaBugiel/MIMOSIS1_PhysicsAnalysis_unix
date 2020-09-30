@@ -1,18 +1,20 @@
-/*! @file LabTest.h
- *  @brief Header file for LabTest class.
+/*! @file HistoPlotter.h
+ *  @brief Header file for HistoPlotter class.
  */
 
 
-#ifndef _LABTEST_H_      
-#define _LABTEST_H_   
+#ifndef _HISTOPLOTTER_H_      
+#define _HISTOPLOTTER_H_   
 
 
 #include "globals.h"
 #include "cout_msg.h"
 #include "data_structure.h"
+#include "Fitter.h"
+#include "Matrix.h"
 
 
-/*! \class 		LabTest
+/*! \class 		HistoPlotter
  *  \brief 		Loades the vector<MIMOSIS1_Integrated_Frame> and performs physical analysis of the input data (S-curves, noise, threshold scans)
  *  \author    	Roma Bugiel
  *  \date      	August 2020
@@ -23,37 +25,41 @@
  *  - noise extraction
  *  - bad pixels finding
  *  - saving the output data into .root tree
+ * \todo 		Saves histo as a .png 
  */
 
 
-class LabTest { 
+class HistoPlotter { 
     
 
 	public:
 
-		LabTest()	{}; //!< Default constructor
+		HistoPlotter()	{}; //!< Default constructor
 		/*! \brief Overloaded constructor 
 		 * 	\details Takes parameters by reference. Initializes #_v_MIM_int_frame and #_v_param_values class members
-		 *  \param[in] &v_MIM_int_frame reference to STL vector containing MIMOSIS1_Integrated_Frame  
+		 *  \param[in] *MIMOSIS1 pointer to Matrix objest, defining the matrix for which histograms are plotted 
+		 * 	\param[in] &v_MIM_int_frame reference to STL vector containing MIMOSIS1_Integrated_Frame  
 		 *  \param[in] &v_param_values reference to STL vector containing scaned parameter values  */
-		LabTest(std::vector<MIMOSIS1_Integrated_Frame> &v_MIM_int_frame, std::vector<int> &&v_param_values) :
-			_v_MIM_int_frame(v_MIM_int_frame), _v_param_values(v_param_values)
+		HistoPlotter(Matrix* MIMOSIS1, std::vector<MIMOSIS1_Single_Run_Dataset> &v_MIM_int_frame, std::vector<int> &&v_param_values) :
+			_MIMOSIS1(MIMOSIS1), _v_MIM_int_frame(v_MIM_int_frame), _v_param_values(v_param_values)
 		{};
 		
 		/*! \brief Overloaded constructor 
 		 * 	\details Takes parameters by R-value reference. Initializes #_v_MIM_int_frame and #_v_param_values class members
-		 *  \param[in] &v_MIM_int_frame R-value reference to STL vector containing MIMOSIS1_Integrated_Frame  
+		 *  \param[in] *MIMOSIS1 pointer to Matrix objest, defining the matrix for which histograms are plotted 
+		 *	\param[in] &v_MIM_int_frame R-value reference to STL vector containing MIMOSIS1_Integrated_Frame  
 		 *  \param[in] &v_param_values  R-value reference to STL vector containing scaned parameter values  */
-		LabTest(std::vector<MIMOSIS1_Integrated_Frame> &&v_MIM_int_frame, std::vector<int> &&v_param_values) :
-			_v_MIM_int_frame(v_MIM_int_frame), _v_param_values(v_param_values)
+		HistoPlotter(Matrix* MIMOSIS1, std::vector<MIMOSIS1_Single_Run_Dataset> &&v_MIM_int_frame, std::vector<int> &&v_param_values) :
+			_MIMOSIS1(MIMOSIS1), _v_MIM_int_frame(v_MIM_int_frame), _v_param_values(v_param_values)
 		{};
 
-		friend std::ostream &operator<<(std::ostream &os, const LabTest &treereader);
+		friend std::ostream &operator<<(std::ostream &os, const HistoPlotter &plotter);
 
 		//Members
-		std::vector<MIMOSIS1_Integrated_Frame> 	_v_MIM_int_frame; //!< Contains the vector of MIMOSIS1_Integrated_Frame structurea
-		std::vector<int> 						_v_param_values;  //!< Default the vector of parameter (VPH, VBB, VTH) scan values
-
+		std::vector<MIMOSIS1_Single_Run_Dataset> 	_v_MIM_int_frame; //!< Contains the vector of MIMOSIS1_Integrated_Frame structurea
+		std::vector<int> 							_v_param_values;  //!< Default the vector of parameter (VPH, VBB, VTH) scan values
+		Matrix*										_MIMOSIS1;		  //!< Plots histograms for this particular detector 
+		
 		//Methods
 		/*! \brief Mainly initialized class members
 		 * 	\details Takes values from config_file.cfg to intialize class variables. The name of variables in config file and
@@ -113,7 +119,14 @@ class LabTest {
 		 * \todo maybe bottom condition should be changed !!
 		 * \todo better validation of bad fit pixels should be added
 		 * */
+		void 	fit_S_curves();
+		
+		/*! \brief plots_S_curves and uses SCurvesFitter for fitting 
+		 * 	\details Calls the SCurvesFitter object that fits Error Function to the given data.
+		 * 	\todo This should replace fit_S_curves();
+		 * */
 		void 	plot_S_curves();
+		
 		
 		/*! \brief Write and closes output .root tree.
 		 * */
@@ -127,18 +140,21 @@ class LabTest {
 		TH2D* h2_badnoise_pix;	//!< 2-D map of "bad" noise pixels (0.1 < noise > 10)
 		TH2D* h2_badmean_pix;	//!< 2-D map of "bad" mean pixels (0 < noise > _max_param_val)
 		TH2D* h2_not_saturated_pix; //!< 2-D map of pixel that did not reach saturation
+		TH2D* h2_failed_fit; 		//!< 2-D map of pixel for which fit failed
+		TH2D* h2_masked_pixels;		//!< 2-D map produced in #BadPixelFinder showing pixels taken as bad (noisy, etc...)
 		TH1D* h_noise_sigma;	//!< 1-D histo of pixel noise (from selected part of matrix)
 		TH1D* h_mu;				//!< 1-D histo of pixel mean (from selected part of matrix)
 		TH1D* h_scan_values;	//!< 1-D histo scanned parameter values
-		TH2D *test2, *test;		//!< test histo, ignore
+		TH1D* h_fake_rate;		//!< 1-D histo produced in #BadPixelFinder 
 		TMultiGraph *mg_scurves;		//!< Multigraph of all S-curves with fits
 		TMultiGraph *mg_sc_badnoise;	//!< Multigraph of "bad" noise pixels S-curves with fits
 		TMultiGraph *mg_sc_badmean;		//!< Multigraph of "bad" mean pixels S-curves with fits
+		TMultiGraph *mg_failed_fit;		//!< Multigraph of pixels with failed fits. \todo Should replace mg_sc_badnoise mg_sc_badmean
 		
 		std::string _scaned_param{""};	//!< Name of the scaned parameters.
 		
 
-		~LabTest()	{};		//!< Destructor 
+		~HistoPlotter()	{};		//!< Destructor 
 
 	private:
 	

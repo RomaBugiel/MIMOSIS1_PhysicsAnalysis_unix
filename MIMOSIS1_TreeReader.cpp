@@ -113,7 +113,7 @@ void MIMOSIS1_TreeReader::load_intput_files()
 	TFile 						*infile {nullptr};
 	TTree 						*tree {nullptr};
 	TH2D 						*h2_hit_map;	
-	MIMOSIS1_Integrated_Frame	integrated_frame;	
+	MIMOSIS1_Single_Run_Dataset	integrated_frame;	
 	std::map<std::string, int> 	run_param;
 
 	const int nb_of_bins_x  {(_column_end-_column_start)+1};
@@ -186,7 +186,7 @@ void MIMOSIS1_TreeReader::load_intput_files()
  * Return vector of MIMOSIS0_Int_Frame structures
  */
 
-std::vector<MIMOSIS1_Integrated_Frame> MIMOSIS1_TreeReader::get_integrated_frames()
+std::vector<MIMOSIS1_Single_Run_Dataset> MIMOSIS1_TreeReader::get_integrated_frames()
 {
 	return v_MIM_int_frame;
 }

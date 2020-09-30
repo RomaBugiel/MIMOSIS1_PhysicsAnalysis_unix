@@ -1,32 +1,30 @@
-#include "LabTest.h"
+#include "HistoPlotter.h"
 
 /*
  * Provides the list of all the parameters stored by the class
  */
  
-std::ostream &operator<<(std::ostream &os, const LabTest &labtest) 
+std::ostream &operator<<(std::ostream &os, const HistoPlotter &plotter) 
 {
-	os << std::setw(40) << " LabTest is run with: " 	<< std::endl;
-	os << std::setw(40) << "_scaned_param : " 			<< labtest._scaned_param	<< std::endl;
-	os << std::setw(40) << "_output_tree_file_path : "	<< labtest._output_tree_file_path	<< std::endl;
-	os << std::setw(40) << "_output_tree_file_core : "  << labtest._output_tree_file_core	<< std::endl;
-	os << std::setw(40) << "_output_tree_file_part : "  << labtest._output_tree_file_part	<< std::endl;
-	os << std::setw(40) << "_output_tree_name : "    	<< labtest._output_tree_name     	<< std::endl;
-	os << std::setw(40) << "_nb_of_row : " 				<< labtest._nb_of_row				<< std::endl;
-	os << std::setw(40) << "_nb_of_column : "			<< labtest._nb_of_column			<< std::endl;
-	os << std::setw(40) << "_row_start : " 				<< labtest._row_start				<< std::endl;
-	os << std::setw(40) << "_row_end : "  				<< labtest._row_end					<< std::endl;
-	os << std::setw(40) << "_column_start : "    		<< labtest._column_start     		<< std::endl;
-	os << std::setw(40) << "_column_end : "    			<< labtest._column_end     			<< std::endl;
-	os << std::setw(40) << "_param_1 : " 				<< labtest._param_1 				<< std::endl;
-	os << std::setw(40) << "_param_2 : " 				<< labtest._param_2 				<< std::endl;
-	os << std::setw(40) << "_param_3 : " 				<< labtest._param_3 				<< std::endl;
-	os << std::setw(40) << "_param_1_value : " 			<< labtest._param_1_value 			<< std::endl;
-	os << std::setw(40) << "_param_2_value : " 			<< labtest._param_2_value 			<< std::endl;
-	os << std::setw(40) << "_param_3_value : " 			<< labtest._param_3_value 			<< std::endl;
-											  
-									  
-										
+	os << std::setw(40) << " HistoPlotter is run with: " 	<< std::endl;
+	os << std::setw(40) << "_scaned_param : " 			<< plotter._scaned_param	<< std::endl;
+	os << std::setw(40) << "_output_tree_file_path : "	<< plotter._output_tree_file_path	<< std::endl;
+	os << std::setw(40) << "_output_tree_file_core : "  << plotter._output_tree_file_core	<< std::endl;
+	os << std::setw(40) << "_output_tree_file_part : "  << plotter._output_tree_file_part	<< std::endl;
+	os << std::setw(40) << "_output_tree_name : "    	<< plotter._output_tree_name     	<< std::endl;
+	os << std::setw(40) << "_nb_of_row : " 				<< plotter._nb_of_row				<< std::endl;
+	os << std::setw(40) << "_nb_of_column : "			<< plotter._nb_of_column			<< std::endl;
+	os << std::setw(40) << "_row_start : " 				<< plotter._row_start				<< std::endl;
+	os << std::setw(40) << "_row_end : "  				<< plotter._row_end					<< std::endl;
+	os << std::setw(40) << "_column_start : "    		<< plotter._column_start     		<< std::endl;
+	os << std::setw(40) << "_column_end : "    			<< plotter._column_end     			<< std::endl;
+	os << std::setw(40) << "_param_1 : " 				<< plotter._param_1 				<< std::endl;
+	os << std::setw(40) << "_param_2 : " 				<< plotter._param_2 				<< std::endl;
+	os << std::setw(40) << "_param_3 : " 				<< plotter._param_3 				<< std::endl;
+	os << std::setw(40) << "_param_1_value : " 			<< plotter._param_1_value 			<< std::endl;
+	os << std::setw(40) << "_param_2_value : " 			<< plotter._param_2_value 			<< std::endl;
+	os << std::setw(40) << "_param_3_value : " 			<< plotter._param_3_value 			<< std::endl;
+											  									
 	return os;                          
 }
 
@@ -34,7 +32,7 @@ std::ostream &operator<<(std::ostream &os, const LabTest &labtest)
  * Initializes class members taking the values from the file
  */
 
-void LabTest::init(const char * config_file)
+void HistoPlotter::init(const char * config_file)
 {
 	
 	if(config.ReadFile(config_file, kEnvUser) < 0)
@@ -68,7 +66,7 @@ void LabTest::init(const char * config_file)
 	
 	if(!_v_param_values.size())
 	{
-		MSG(ERR, "There is no parameter value given for analysis --> exit." );
+		MSG(ERR, "[HistoPlotter] There is no parameter value given for analysis --> exit." );
 		exit(0);
 	}
 	else
@@ -76,7 +74,7 @@ void LabTest::init(const char * config_file)
 		_min_param_val 	= *std::min_element(_v_param_values.begin(),_v_param_values.end());
 		_max_param_val	= *std::max_element(_v_param_values.begin(),_v_param_values.end());
 	
-		MSG(INFO, "LabTest is running analysis for: " + _scaned_param + " from " + _min_param_val + " to " + _max_param_val);
+		MSG(INFO, "HistoPlotter is running analysis for: " + _scaned_param + " from " + _min_param_val + " to " + _max_param_val);
 
 	}
 
@@ -86,7 +84,7 @@ void LabTest::init(const char * config_file)
  * Opens output tree that will store the histos
  */
 
-int LabTest::open_output_tree()
+int HistoPlotter::open_output_tree()
 {
 	TString _output_full_name {
 							_output_tree_file_path 	+ "/" +	
@@ -119,7 +117,7 @@ int LabTest::open_output_tree()
 
 
 
-void LabTest::init_histo()
+void HistoPlotter::init_histo()
 {
 	long unsigned int nb_of_values  {_v_param_values.size()};
 	const int nb_of_bins_x  {(_column_end-_column_start)+1};
@@ -139,6 +137,7 @@ void LabTest::init_histo()
 	h2_badnoise_pix	= new TH2D("h2_badnoise_pix", "Pixels with noise qualified as not proper", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
 	h2_badmean_pix	= new TH2D("h2_badmean_pix", "Pixels with mean qualified as not proper", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
 	h2_not_saturated_pix = new TH2D("h2_not_saturated_pix", "Pixel that did not reached saturation level (= nb_of_frames)", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
+	h2_failed_fit	= new TH2D("h2_failed_fit", "Pixels for which the ERF function fit failed", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
 	
 	mg_scurves 		= 	new TMultiGraph("mg_scurves", "mg_scurves");
 	mg_scurves		->	SetTitle("S curves for " + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
@@ -149,7 +148,9 @@ void LabTest::init_histo()
 	mg_sc_badmean 	= 	new TMultiGraph("mg_sc_badmean", "mg_sc_badmean");
 	mg_sc_badmean	->	SetTitle("S curves with mean higher than min max param " + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
 
-	
+	mg_failed_fit	= 	new TMultiGraph("mg_failed_fit", "mg_failed_fit");
+	mg_failed_fit	->	SetTitle("Failed ERF fits for s" + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
+
 }   
 
 /*
@@ -157,7 +158,7 @@ void LabTest::init_histo()
  * each pixel fired in N frames)
  */
 
-void LabTest::copy_integrated_frames_histos_to_output()
+void HistoPlotter::copy_integrated_frames_histos_to_output()
 {
 	TH2D * histo; 
 		
@@ -171,9 +172,9 @@ void LabTest::copy_integrated_frames_histos_to_output()
 
 
 /*
- * Plot the S-curves
+ * Fit the S-curves
  */
-void LabTest::plot_S_curves()
+void HistoPlotter::fit_S_curves()
 {
 
 	TBenchmark *benchmark = new TBenchmark();
@@ -200,21 +201,25 @@ void LabTest::plot_S_curves()
 	int how_many_hits {0};
 	int nb_of_frames {0};
 	
-
+	//std::cout << " Number of entries: " << (_MIMOSIS1->_h2_masked_pixels)->GetEntries() << std::endl;
 
 	for(int row_it = _row_start; row_it <= _row_end ; row_it++) 
 	//for(int row_it = 0; row_it < row_bin ; row_it++) 
 	{	
-		
 		for(int col_it = _column_start; col_it <= _column_end ; col_it++) 
 		//for(int col_it = 0; col_it < 7 ; col_it++) 
 		{	
+			col_bin 		= (_MIMOSIS1->_h2_masked_pixels)->GetXaxis()->FindBin(col_it);
+			row_bin			= (_MIMOSIS1->_h2_masked_pixels)->GetYaxis()->FindBin(row_it);	
 			
+			if(_MIMOSIS1->_h2_masked_pixels -> GetBinContent(col_bin, row_bin) == 1 ) continue;
+
 			for(int val = 0 ; val < param_nb ; val++) 
 			{	
-		
 				col_bin 		= _v_MIM_int_frame[val].h2_hit_map->GetXaxis()->FindBin(col_it);
-				row_bin			= _v_MIM_int_frame[val].h2_hit_map->GetYaxis()->FindBin(row_it);		how_many_hits 	= (_v_MIM_int_frame[val].h2_hit_map)->GetBinContent(col_bin, row_bin);
+				row_bin			= _v_MIM_int_frame[val].h2_hit_map->GetYaxis()->FindBin(row_it);
+				
+				how_many_hits 	= (_v_MIM_int_frame[val].h2_hit_map)->GetBinContent(col_bin, row_bin);
 				nb_of_frames 	= _v_MIM_int_frame[val].nb_of_frames;
 				
 				entries.push_back( how_many_hits );
@@ -340,15 +345,108 @@ void LabTest::plot_S_curves()
 		
 
 /*
+ * Plots the S-curves
+ */
+ 
+void HistoPlotter::plot_S_curves()
+{
+	TBenchmark *benchmark = new TBenchmark();
+	benchmark->Start("SearchTime");
+	
+	Fitter fitter;	
+	int row_bin {0};
+	int col_bin {0};	
+	int how_many_hits {0};
+	std::vector<int> v_pixel_fired;
+	int is_saturated {0};
+	int good_fit{0};
+	std::pair<double,double> mean_noise;
+	TGraph *s_curve;
+	
+	fitter.init("config_file.cfg");
+	std::cout << fitter << std::endl;
+	
+	for(int row_it = _row_start; row_it <= _row_end ; row_it++) 
+	{	
+		for(int col_it = _column_start; col_it <= _column_end ; col_it++) 
+		{	
+			col_bin 	= _MIMOSIS1->_h2_masked_pixels->GetXaxis()->FindBin(col_it);
+			row_bin		= _MIMOSIS1->_h2_masked_pixels->GetYaxis()->FindBin(row_it);	
+			
+			if(_MIMOSIS1->_h2_masked_pixels -> GetBinContent(col_bin, row_bin) == 1 ) continue;
+
+			for(int val = 0 ; val < (int) _v_param_values.size() ; val++) 
+			{	
+				//Calculated two times because _v_MIM_int_frame and h2_masked might have different bining
+				//It might be that it should be solved another way because would be not efficient.
+				//GetBinContent and finging bin is done only for determining if there was saturation or not -> should be done in more effective way
+				col_bin 		= _v_MIM_int_frame[val].h2_hit_map->GetXaxis()->FindBin(col_it);
+				row_bin			= _v_MIM_int_frame[val].h2_hit_map->GetYaxis()->FindBin(row_it);	
+					
+				how_many_hits 	= (_v_MIM_int_frame[val].h2_hit_map)->GetBinContent(col_bin, row_bin);
+				v_pixel_fired.push_back( how_many_hits );
+				
+				//Count how many times pixel fired in each frame. If this not happened, S curve will be not fitted,
+				if( how_many_hits == _v_MIM_int_frame[val].nb_of_frames ) is_saturated ++;
+			}
+			
+						
+			if(is_saturated == 0) 
+			{	
+				h2_not_saturated_pix -> Fill( col_it, row_it);
+			}
+			else
+			{
+				good_fit 	= fitter.fit_error_function(_v_param_values, v_pixel_fired);
+				s_curve		= fitter.get_S_curve();
+				mean_noise 	= fitter.get_S_curve_fit_params();
+				
+				if(good_fit)
+				{
+					h2_noise_sigma		->	Fill(col_it, row_it, mean_noise.second);
+					h2_mu				->	Fill(col_it, row_it, mean_noise.first);
+					mg_scurves			->	Add(s_curve,"L");
+
+				}
+				else
+				{	
+					mg_failed_fit	->	Add(s_curve,"L");
+					h2_failed_fit	->	Fill(col_it, row_it);					
+					//MSG(CNTR, "Pixel with failed fit: [" +  std::to_string( col_it ) + ", " + std::to_string( row_it )  "]. ---- mean: " +  std::to_string( mean_noise.first ) + ", sigma: " + std::to_string( mean_noise.second ) );
+
+				}
+			
+			}				
+			
+			fitter.clear();			
+			v_pixel_fired.clear();
+			s_curve 		= nullptr;
+			is_saturated 	= 0;
+		} 
+	}
+
+
+	delete s_curve;
+	MSG(WARN, "Refitted functions: 	 " +  	std::to_string( fitter._refitted ));
+	MSG(WARN, "Pixels not saturated: " + 	std::to_string( h2_not_saturated_pix -> GetEntries() ));
+	MSG(WARN, "Pixels failed fit: 	 " +  	std::to_string( h2_failed_fit -> GetEntries() ));
+
+	std::cout << "generate_S_curves() time: "; benchmark->Show("SearchTime");	
+	
+}
+
+
+/*
  * Saves histos in the output tree and closes it
  */		
-int LabTest::close_output_tree()
+int HistoPlotter::close_output_tree()
 {	
 	_output_data_file	->	cd();
 	mg_scurves 		-> 	Write();
 	mg_sc_badnoise	-> 	Write();
 	mg_sc_badmean	-> 	Write();
-	
+	mg_failed_fit	-> 	Write();
+
 	_output_data_file  ->	Write();
 	_output_data_file  ->	Close();
 	

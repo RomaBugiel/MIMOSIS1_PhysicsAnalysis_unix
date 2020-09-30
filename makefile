@@ -6,7 +6,7 @@ LDFLAGS=`root-config --ldflags`
 
 LDLIBS = `root-config --glibs` 
 
-SOURCES=  MIMOSIS1_TreeReader.cpp RunControl.cpp LabTest.cpp
+SOURCES=  MIMOSIS1_TreeReader.cpp RunControl.cpp HistoPlotter.cpp Fitter.cpp Matrix.cpp Pixel.cpp BadPixelFinder.cpp
 
 HEADERS=/globals.h /cout_msg.h
 OBJECTS=$(SOURCES:.cc=.o)
