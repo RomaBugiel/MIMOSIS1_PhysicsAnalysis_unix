@@ -37,7 +37,9 @@
 #include "TGraph.h"
 #include "TMultiGraph.h"
 #include <Math/MinimizerOptions.h>
-
+#include "TCanvas.h"
+#include "TDirectory.h"
+#include <TStyle.h>
 
 
  /**
@@ -54,6 +56,6 @@
  * </TABLE>
  */
  
-const int VERBOSITY_LEVEL = 3;
+const int VERBOSITY_LEVEL = 4;
 
 #endif

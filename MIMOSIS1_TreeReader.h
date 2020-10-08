@@ -9,6 +9,7 @@
 #include "globals.h"
 #include "cout_msg.h"
 #include "data_structure.h"
+#include <sstream>
 
 /*! \class 		MIMOSIS1_TreeReader
  *  \brief 		Opens one (or more) MIMOSIS 1 input data in ROOT format and saves the vector of MIMOSIS1_Single_Run_Dataset structures.
@@ -72,29 +73,31 @@ public:
 	std::string _param_2;	//!< Name of second analysis parameter (default VTH). Used for input/output name generation.
 	std::string _param_3;	//!< Name of third analysis parameter on default VBB). Used for input/output name generation.
 	
-	int _param_1_value;	//!< Value of first analysis parameter (default VPH). Used for input/output name generation.
-	int _param_2_value; //!< Value of second analysis parameter (default VTH). Used for input/output name generation.
-	int _param_3_value; //!< Value of third analysis parameter on default VBB). Used for input/output name generation.
- 
-	int _enable_scan; 	//!< Determines which analysis parameters is scaned (VPH, VTH, VBB)
-	int _frames_in_run; //!< \brief Number of frames in run N  \details How many frames have been integrated in input integrated frame. If negative, the default value -1 read in.
-			
-	int _val_min;	//!< Minimum analysis parameter value
-	int _val_max;	//!< Maximum analysis parameter value
-	int _step;		//!< Step of ramping the analysis parameter
-	int _incl;		//!< If analysis was made for additional parameter value, it might be declared here.	
+	int _param_1_value;		//!< Value of first analysis parameter (default VPH). Used for input/output name generation.
+	int _param_2_value;		//!< Value of second analysis parameter (default VTH). Used for input/output name generation.
+	int _param_3_value;		//!< Value of third analysis parameter on default VBB). Used for input/output name generation.
 	
-	int _row_start;		//!< The row address of first pixel from which analysis will start (Numbering from 0!)		
-	int _row_end;		//!< The row address of last pixel on which analysis will end.			
-	int _column_start;	//!< The column address of first pixel from which analysis will start (Numbering from 0!)		
-	int _column_end;	//!< The column address of last pixel on which analysis will end.	
+	int _enable_scan; 		//!< Determines which analysis parameters is scaned (VPH, VTH, VBB)
+	int _frames_in_run;		//!< \brief Number of frames in run N  \details How many frames have been integrated in input integrated frame. If negative, the default value -1 read in.
+				
+	int _val_min;			//!< Minimum analysis parameter value
+	int _val_max;			//!< Maximum analysis parameter value
+	int _step;				//!< Step of ramping the analysis parameter
+	std::string _incl;		//!< \brief Additonal values for analysis might be declared here \details If any parameters cannot be given by #_val_min, #_val_max and #_step can by listed here with whitespace between numbers. Inclusion list has low priority than exclusion list.  Leave empty if not used.
+	std::string _excl;		//!< \brief List the values that should not be taken to analysis \details If any parameters declared by #_val_min, #_val_max and #_step has to be excluded from the analysis, it can be listed here. Exclusion list has highier priority than inclustion list. Leave empty if not used.	
+	
+	int _row_start;			//!< The row address of first pixel from which analysis will start (Numbering from 0!)		
+	int _row_end;			//!< The row address of last pixel on which analysis will end.			
+	int _column_start;		//!< The column address of first pixel from which analysis will start (Numbering from 0!)		
+	int _column_end;		//!< The column address of last pixel on which analysis will end.	
 
 	std::string _input_tree_file_path;		//!< Path to the input files.
 	/*! \brief Core of the input files names. 
 	 *  \details To the core name the postfix with parameters name and values is added (as described for load_intput_files function)*/
 	std::string _input_tree_file_name_core;	
 	std::string _input_tree_name;			//!< Name of the input tree.
-	
+	std::string _input_prefix;				//!< postfix to the input file name. If no set empty.
+
 	std::vector< MIMOSIS1_Single_Run_Dataset > 	v_MIM_int_frame; //!< Vector of structures MIMOSIS1_Single_Run_Dataset.
 	std::vector< int > 							v_param_values;	//!< Vector of analysis parameters (scan values).
 

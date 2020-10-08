@@ -28,6 +28,7 @@ int main()
 	bpf				->	init(config_file);
 	std::cout 		<< 	*bpf 			  << std::endl;
 	std::cout 		<<	*MIMOSIS1_matrix  << std::endl;	
+	bpf				->	execute();
 
 	// Initilializie input data reader and convert input data to internal data structure
 	MIMOSIS1_TreeReader *tree_reader = new MIMOSIS1_TreeReader();
@@ -49,10 +50,9 @@ int main()
 	std::cout 		<< 		*test_vph << std::endl;
 	test_vph		->		open_output_tree();
 	test_vph		->		init_histo();
-	test_vph -> h_fake_rate 		= (TH1D*)( bpf	->	get_fake_rate_histo() ) -> Clone();
-	//test_vph ->	h2_masked_pixels 	= (TH2D*)( bpf	->	get_masked_pixel_map()) -> Clone();
-	test_vph		->		copy_integrated_frames_histos_to_output();
-	test_vph		->		fit_S_curves();
+	test_vph		->		copy_histos();
+	test_vph		->		plot_S_curves();
+	test_vph		->		save_png();
 	test_vph		->		close_output_tree();
 	
 	return 0;

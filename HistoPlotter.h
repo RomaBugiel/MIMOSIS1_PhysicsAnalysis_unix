@@ -97,10 +97,10 @@ class HistoPlotter {
 		 * */
 		void 	init_histo();
 				
-		/*! \brief Clones integrated hit maps from input data structure MIMOSIS1_Integrated_Frame into output histogram
-		 *  \details It simply copies the integrated frame (FIRED MIMOSIS1 format, integrated hit map) into the output root tree. It copies the maps to each loaded .root tree (so in the output maps there are integrated frames for each scanned parameter).
+		/*! \brief Clones histograms from other sources to save it in the output tree 
+		 *  \details It simply copies the integrated frame MIMOSIS1_Single_Run_Dataset::h2_hit_map (FIRED MIMOSIS1 format, integrated hit map), #Matrix::h2_masked_pixels, #Matrix::h2_activated_pixels into the output root tree. It copies the maps to each loaded .root tree (so in the output maps there are integrated frames for each scanned parameter).
 		 * */
-		void 	copy_integrated_frames_histos_to_output();
+		void 	copy_histos();
 		
 		/*! \brief Creates TGraph for each pixel, fits ERF function, extracts parameters
 		 * 	\details For each pixel the TGraph of number of entries vs scanned parameter value is created.
@@ -132,6 +132,10 @@ class HistoPlotter {
 		 * */
 		int 	close_output_tree();
 		
+		/*! \brief Saves the histograms as images */
+		void 	save_png();
+
+		
 		//Histos
 		//std::vector<TH2D*> vm_hit_map_run;
 		TH2D* h2_noise_sigma;   //!< 2-D map of each pixel sigma (noise, sigma of ERF fit)
@@ -152,7 +156,7 @@ class HistoPlotter {
 		TMultiGraph *mg_failed_fit;		//!< Multigraph of pixels with failed fits. \todo Should replace mg_sc_badnoise mg_sc_badmean
 		
 		std::string _scaned_param{""};	//!< Name of the scaned parameters.
-		
+		TString _output_full_name;
 
 		~HistoPlotter()	{};		//!< Destructor 
 
@@ -160,7 +164,8 @@ class HistoPlotter {
 	
 		int 	_min_param_val; //!< Minimum value of the scanned analysis parameter. 
 		int 	_max_param_val; //!< Maximum value of the scanned analysis parameter. 
-		
+		double  _saturation_lvl; //!< [0 - 1] determines the level of pixel saturation that has to be achieved, to start the fitting procedure
+	
 	#ifndef DOXYGEN_SHOULD_SKIP_THIS
 		
 		TEnv 	config;
@@ -187,7 +192,7 @@ class HistoPlotter {
 		std::string _output_tree_file_core  {""};
 		std::string _output_tree_file_part  {""};
 		std::string _output_tree_name 		{""};
-	
+		std::string _output_prefix 			{""};	
 	#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 };
 
