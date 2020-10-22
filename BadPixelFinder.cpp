@@ -47,8 +47,11 @@ void BadPixelFinder::init(const char * config_file)
 	_frames_in_run					=	config.GetValue("_frames_in_run", -1);
 	_active_selected				=	config.GetValue("_active_selected", 0);
 
-	if(_active_selected) MSG(WARN, "[BPF] Only selected pixels are taken to the analysis");
 
+	if(_active_selected==1) {
+		MSG(WARN, "[BPF] Only selected pixels are taken to the analysis");
+	}
+	
 	//Init histograms
 	init_histo();
 	
@@ -76,8 +79,8 @@ void BadPixelFinder::execute()
 	_MIMOSIS1	->	list_mask_pixels();
 
 	//Activate only selected pixels
-	if(_active_selected) 
-	{
+	if(_active_selected==1) 
+	{	
 		 load_activate_selected_file();
 		_MIMOSIS1	->	list_active_pixels();
 	}

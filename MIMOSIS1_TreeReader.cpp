@@ -4,6 +4,7 @@ std::ostream &operator<<(std::ostream &os, const MIMOSIS1_TreeReader &treereader
 {
 	os << std::setw(30) << std::endl;
 	os << std::setw(30) << " TreeReader is run with: " 		<< std::endl;
+	os << std::setw(30) << "_run : " 						<< treereader._run				<< std::endl;
 	os << std::setw(30) << "_param_1 : " 					<< treereader._param_1 			<< std::endl;
 	os << std::setw(30) << "_param_2 : " 					<< treereader._param_2 			<< std::endl;
 	os << std::setw(30) << "_param_3 : " 					<< treereader._param_3 			<< std::endl;
@@ -11,7 +12,7 @@ std::ostream &operator<<(std::ostream &os, const MIMOSIS1_TreeReader &treereader
 	os << std::setw(30) << "_param_2_value : " 				<< treereader._param_2_value 	<< std::endl;
 	os << std::setw(30) << "_param_3_value : " 				<< treereader._param_3_value 	<< std::endl;
 	os << std::setw(30) << "_enable_scan : " 				<< treereader._enable_scan 		<< std::endl;
-	os << std::setw(30) << "_frames_in_run : " 				<< treereader._frames_in_run 		<< std::endl;
+	os << std::setw(30) << "_frames_in_run : " 				<< treereader._frames_in_run 	<< std::endl;
 	os << std::setw(30) << "_val_min : " 					<< treereader._val_min 			<< std::endl;
 	os << std::setw(30) << "_val_max : " 					<< treereader._val_max 			<< std::endl;
 	os << std::setw(30) << "_step : " 						<< treereader._step 			<< std::endl;
@@ -100,7 +101,8 @@ void MIMOSIS1_TreeReader::init(const char * config_file)
 	}
 	else
 	{
-	
+		_run 			=	config.GetValue("_run", 999999);
+
 		_param_1 		=	config.GetValue("_param_1", "");
 		_param_2 		=   config.GetValue("_param_2", "");
 		_param_3 		=   config.GetValue("_param_3", "");
@@ -162,11 +164,13 @@ void MIMOSIS1_TreeReader::load_intput_files()
 		}
 		
 		
-		inname = 	_param_1 + "_" + std::to_string(_param_1_value) + "_" + 
+		inname = 	"run" + std::to_string(_run)  + "_" +
+					_param_1 + "_" + std::to_string(_param_1_value) + "_" + 
 					_param_2 + "_" + std::to_string(_param_2_value) + "_" + 
 					_param_3 + "_" + std::to_string(_param_3_value) +
 					_input_prefix; 
-				
+		
+		run_param.insert ( std::pair<std::string,int>("run",_run));
 		run_param.insert ( std::pair<std::string,int>(_param_1,_param_1_value) 	);
 		run_param.insert ( std::pair<std::string,int>(_param_2,_param_2_value) 	);
 		run_param.insert ( std::pair<std::string,int>(_param_3,_param_3_value) 	);

@@ -67,6 +67,15 @@ std::pair<double,double> Fitter::get_S_curve_fit_params()
 }
 
 /*
+ * Return S_curce fit chi2
+ */
+double Fitter::get_S_curve_fit_chi2()
+{	
+	//Not well written
+	return ferf->GetChisquare() /(double)(ferf->GetNumberFreeParameters());
+}
+
+/*
  * Find vector min max value
  */
 void Fitter::find_min_max(std::vector<int> &v, int &min, int &max) 
@@ -84,14 +93,15 @@ void Fitter::set_fitting_options()
 	ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(_fit_fun_cal	);
 }
 
-/*
- * Makes fit
- */
-void Fitter::make_fit(TGraph* gr, TF1* f)
-{	
-	gr	->	Fit(f,"WQ");
 
-	fit_params = std::make_pair(f->GetParameter(1), f->GetParameter(2));
+/*
+ * Makes fit to the global variable ferf, s_curves
+ */
+void Fitter::make_fit()
+{	
+	s_curve->	Fit(ferf,"WQ");
+	fit_params 	= std::make_pair(ferf->GetParameter(1), ferf->GetParameter(2));
+;
 }
 
 /*
@@ -99,10 +109,8 @@ void Fitter::make_fit(TGraph* gr, TF1* f)
  */
 bool Fitter::is_good_fit()
 {
-	std::string dupa;
 	
 	bool bad_noise 	= (fit_params.second  < _min_accepted_noise)  || (fit_params.second > _max_accepted_noise);	
-	
 	bool bad_mean  	= (fit_params.first < _min_param_val)		|| (fit_params.first > _max_param_val);	
 	
 	return !(bad_noise || bad_mean);
@@ -114,9 +122,8 @@ bool Fitter::is_good_fit()
  */
 int  Fitter::fit_error_function(std::vector<int> &v_x, std::vector<int> &v_y)
 {
-	TF1 					 *ferf		{nullptr};
-	const int 				 param_nb = v_x.size();
-	int						 fit_failed	{0};
+	const int 	param_nb = v_x.size();
+	int			fit_failed	{0};
 	
 	// Set preliminary parameters
 	set_fitting_options();
@@ -138,14 +145,14 @@ int  Fitter::fit_error_function(std::vector<int> &v_x, std::vector<int> &v_y)
 	ferf	->	SetParError(1, 0.1);
 	ferf	->	SetParError(2, 0.01);
 		
-	make_fit(s_curve, ferf);
+	make_fit();
 
 	if( is_good_fit() == false )
 	{
 		for(int i = 1; i <= _max_refit ; i++ ) 
 		{	
 			ferf 	->	FixParameter(0,	_fit_norm_param_fix); 
-			make_fit(s_curve, ferf);
+			make_fit();
 			_refitted++;
 			if(is_good_fit()) break;
 		}
@@ -157,6 +164,7 @@ int  Fitter::fit_error_function(std::vector<int> &v_x, std::vector<int> &v_y)
 			
 }
 
+
 /*
  * Clear global variables for the next fit
  */
@@ -164,4 +172,6 @@ void Fitter::clear()
 {
 	fit_params = std::make_pair(0.0, 0.0);
 	s_curve =	nullptr;
+	ferf 	=	nullptr;
+
 }

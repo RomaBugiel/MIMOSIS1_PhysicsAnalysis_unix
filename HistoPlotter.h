@@ -150,6 +150,7 @@ class HistoPlotter {
 		TH1D* h_mu;				//!< 1-D histo of pixel mean (from selected part of matrix)
 		TH1D* h_scan_values;	//!< 1-D histo scanned parameter values
 		TH1D* h_fake_rate;		//!< 1-D histo produced in #BadPixelFinder 
+		TH1D* h_chi2;			//!< 1-D histo of fits chi2
 		TMultiGraph *mg_scurves;		//!< Multigraph of all S-curves with fits
 		TMultiGraph *mg_sc_badnoise;	//!< Multigraph of "bad" noise pixels S-curves with fits
 		TMultiGraph *mg_sc_badmean;		//!< Multigraph of "bad" mean pixels S-curves with fits
@@ -173,6 +174,8 @@ class HistoPlotter {
 		TTree 	*_mimosis0_out_tree;
 	
 		//Variables
+		int	_run;
+		
 		std::string _param_1;	
 		std::string _param_2;	
 		std::string _param_3;	 
@@ -181,12 +184,15 @@ class HistoPlotter {
 		int _param_2_value; 
 		int _param_3_value; 
  
-		int 	_nb_of_row;	
-		int 	_nb_of_column;
-		int 	_row_start;			
-		int 	_row_end;			
-		int 	_column_start;		
-		int 	_column_end;	
+		int _nb_of_row;	
+		int _nb_of_column;
+		int _row_start;			
+		int _row_end;			
+		int _column_start;		
+		int _column_end;	
+		int _frames_in_run; //!< \todo should be taken from other class
+
+		int _dac_shift;
 		
 		std::string _output_tree_file_path 	{""};
 		std::string _output_tree_file_core  {""};

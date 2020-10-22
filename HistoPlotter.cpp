@@ -8,7 +8,8 @@ std::ostream &operator<<(std::ostream &os, const HistoPlotter &plotter)
 {
 	os << std::setw(30) << std::endl;
 	os << std::setw(30) << " HistoPlotter is run with: " 	<< std::endl;
-	os << std::setw(30) << "_scaned_param : " 			<< plotter._scaned_param	<< std::endl;
+	os << std::setw(30) << "_run : " 					<< plotter._run						<< std::endl;
+	os << std::setw(30) << "_scaned_param : " 			<< plotter._scaned_param			<< std::endl;
 	os << std::setw(30) << "_output_tree_file_path : "	<< plotter._output_tree_file_path	<< std::endl;
 	os << std::setw(30) << "_output_tree_file_core : "  << plotter._output_tree_file_core	<< std::endl;
 	os << std::setw(30) << "_output_tree_file_part : "  << plotter._output_tree_file_part	<< std::endl;
@@ -26,6 +27,7 @@ std::ostream &operator<<(std::ostream &os, const HistoPlotter &plotter)
 	os << std::setw(30) << "_param_1_value : " 			<< plotter._param_1_value 			<< std::endl;
 	os << std::setw(30) << "_param_2_value : " 			<< plotter._param_2_value 			<< std::endl;
 	os << std::setw(30) << "_param_3_value : " 			<< plotter._param_3_value 			<< std::endl;
+	os << std::setw(30) << "_dac_shift : " 				<< plotter._dac_shift 			<< std::endl;
 	os << std::setw(30) << "_saturation_lvl : " 		<< plotter._saturation_lvl 			<< std::endl;								  									
 	return os;                          
 }
@@ -43,7 +45,10 @@ void HistoPlotter::init(const char * config_file)
 		exit(0);
 	}
 	else
-	{             
+	{   
+		_run					=	config.GetValue("_run", 999999);
+		
+		_frames_in_run			=	config.GetValue("_frames_in_run", 0);
 		_nb_of_row				=	config.GetValue("_nb_of_row", 0);
 		_nb_of_column			=	config.GetValue("_nb_of_column", 0);
 		_row_start				=	config.GetValue("_row_start", 0);
@@ -65,9 +70,12 @@ void HistoPlotter::init(const char * config_file)
 		_param_1_value			=   config.GetValue("_param_1_value", 0);
 		_param_2_value			=   config.GetValue("_param_2_value", 0);
 		_param_3_value			=   config.GetValue("_param_3_value", 0);
-	 
+	 	
+	 	_dac_shift				=   config.GetValue("_dac_shift", 0);
+
 		_saturation_lvl			=   config.GetValue("_saturation_lvl", 0.5);	                       
 	}
+	
 	
 	if(!_v_param_values.size())
 	{
@@ -76,6 +84,11 @@ void HistoPlotter::init(const char * config_file)
 	}
 	else
 	{	
+		for(int i = 0; i < (int)(_v_param_values.size()); i++) 
+		{
+			_v_param_values[i] = _v_param_values[i]+_dac_shift;	
+		}
+		
 		_min_param_val 	= *std::min_element(_v_param_values.begin(),_v_param_values.end());
 		_max_param_val	= *std::max_element(_v_param_values.begin(),_v_param_values.end());
 	
@@ -84,9 +97,10 @@ void HistoPlotter::init(const char * config_file)
 
 	}
 	
-	_output_full_name =	_output_tree_file_path 	+ "/" +	
-						_output_tree_file_core 	+ "_" + 
-						_output_tree_file_part 	+ "_" +
+	_output_full_name =	_output_tree_file_path 			+ "/" +	
+						_output_tree_file_core 			+ "_" + 
+						"run" + std::to_string(_run) 	+ "_" + 
+						_output_tree_file_part 			+ "_" +
 						_scaned_param + "_" + std::to_string(_min_param_val) + "_"  +std::to_string(_max_param_val) +
 						_output_prefix  ;
 }
@@ -132,32 +146,33 @@ void HistoPlotter::init_histo()
 	//vm_hit_map_run.resize(nb_of_values);
 	
 	//TH1D
-	h_scan_values	= new TH1D("h_scan_values", (TString)(_scaned_param) + " scan values (" + (TString)(_output_tree_file_part) + ")", nb_of_values+1, _min_param_val, _max_param_val );
-	h_noise_sigma	= new TH1D("h_noise_sigma", "Noise histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; noise ; entries", 1000, 0, 100 );
-	h_mu			= new TH1D("h_mu", "Offset histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; offset; entries", ((_max_param_val-_min_param_val))+1, 0.8*_min_param_val, _max_param_val*1.2 );
- 
+	h_scan_values	= new TH1D("h_scan_values", "["+(TString)(std::to_string(_run))+"] "+(TString)(_scaned_param) + " scan values (" + (TString)(_output_tree_file_part) + ")", nb_of_values+1, _min_param_val, _max_param_val );
+	h_noise_sigma	= new TH1D("h_noise_sigma", "["+(TString)(std::to_string(_run))+"] Pixels noise histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel noise [e] ; entries", 1000, 0, 100 );
+	h_mu			= new TH1D("h_mu", "["+(TString)(std::to_string(_run))+"] Pixels threshold histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel threshold [e]; entries", ((_max_param_val-_min_param_val))+1, 0.8*_min_param_val, _max_param_val*1.2 );
+ 	h_chi2			= new TH1D("h_chi2", "["+(TString)(std::to_string(_run))+"] Chi2 of fits for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; chi2; entries", 1000,0,200 );
+
 	//TH2D
-	h2_noise_sigma 		= new TH2D("h2_noise_sigma", "Sigma for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) +  ") ; column; row", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1);
-	h2_mu				= new TH2D("h2_mu", "Offset for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) +  ") ; column; row", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1);
+	h2_noise_sigma 		= new TH2D("h2_noise_sigma", "["+(TString)(std::to_string(_run))+"] Pixels noise map for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) +  ") ; column; row", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1);
+	h2_mu				= new TH2D("h2_mu", "["+(TString)(std::to_string(_run))+"] Pixels threshold map for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) +  ") ; column; row", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1);
 	//h2_activated_pixels = new TH2D("h2_activated_pixels", "Map of selected pixels activated for analysis", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); <
 	//h2_masked_pixels 	= new TH2D("h2_masked_pixels", "Map of masked pixels", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); <
-	h2_empty_pix 		= new TH2D("h2_empty_pix", "h2_empty_pix", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
-	h2_not_saturated_pix = new TH2D("h2_not_saturated_pix", "Pixel that did not reached saturation level (= nb_of_frames)", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
-	h2_failed_fit		= new TH2D("h2_failed_fit", "Pixels for which the ERF function fit failed", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
+	h2_empty_pix 		= new TH2D("h2_empty_pix", "["+(TString)(std::to_string(_run))+"] Empty pixels (no data from converter)", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
+	h2_not_saturated_pix = new TH2D("h2_not_saturated_pix", "["+(TString)(std::to_string(_run))+"] Pixel that did not reached saturation level (= nb_of_frames)", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
+	h2_failed_fit		= new TH2D("h2_failed_fit", "["+(TString)(std::to_string(_run))+"] Pixels for which the ERF function fit failed", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
 	
 	//h2_badnoise_pix	= new TH2D("h2_badnoise_pix", "Pixels with noise qualified as not proper", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
 	//h2_badmean_pix	= new TH2D("h2_badmean_pix", "Pixels with mean qualified as not proper", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
 	mg_scurves 		= 	new TMultiGraph("mg_scurves", "mg_scurves");
-	mg_scurves		->	SetTitle("S curves for " + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
+	mg_scurves		->	SetTitle("["+(TString)(std::to_string(_run))+"] S curves for " + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
 
 	mg_sc_badnoise 	= 	new TMultiGraph("mg_sc_badnoise", "mg_sc_badnoise");
-	mg_sc_badnoise	->	SetTitle("S curves with noise higher than 10 for " + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
+	mg_sc_badnoise	->	SetTitle("["+(TString)(std::to_string(_run))+"] S curves with noise higher than 10 for " + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
 
 	mg_sc_badmean 	= 	new TMultiGraph("mg_sc_badmean", "mg_sc_badmean");
-	mg_sc_badmean	->	SetTitle("S curves with mean higher than min max param " + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
+	mg_sc_badmean	->	SetTitle("["+(TString)(std::to_string(_run))+"] S curves with mean higher than min max param " + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
 
 	mg_failed_fit	= 	new TMultiGraph("mg_failed_fit", "mg_failed_fit");
-	mg_failed_fit	->	SetTitle("Failed ERF fits for s" + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
+	mg_failed_fit	->	SetTitle("["+(TString)(std::to_string(_run))+"] Failed ERF fits for s" + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
 
 }   
 
@@ -246,6 +261,7 @@ void HistoPlotter::plot_S_curves()
 				good_fit 	= fitter.fit_error_function(_v_param_values, v_pixel_fired);
 				s_curve		= fitter.get_S_curve();
 				mean_noise 	= fitter.get_S_curve_fit_params();
+				h_chi2		-> Fill( fitter.get_S_curve_fit_chi2() );
 				
 				if(good_fit)
 				{
@@ -308,78 +324,87 @@ int HistoPlotter::close_output_tree()
 void HistoPlotter::save_png()
 {	
 	TCanvas *c = new TCanvas(); 
-	c->cd();
+	c->cd(); c->SetGrid();
 	h_noise_sigma->GetXaxis()->SetRangeUser(0, h_noise_sigma->GetMean()+10*h_noise_sigma->GetRMS());
+	h_noise_sigma->SetLineWidth(2);
+	h_noise_sigma->SetFillColor(kBlue);
+	h_noise_sigma->SetFillStyle(3244);
 	h_noise_sigma->Draw();
-	c->Print(_output_full_name+"_h_noise_sigma.png");
+	c->Print(_output_full_name+"_h_noise_sigma.pdf");
 	
 
 	c->Clear(); c->cd();
+	h_mu->SetLineWidth(2);
+	h_mu->SetFillColor(kBlue);
+	h_mu->SetFillStyle(3244);	
 	h_mu->Draw();
-	c->Print(_output_full_name+"_h_mu.png");
+	c->Print(_output_full_name+"_h_mu.pdf");
 
 	c->Clear(); c->cd();
 	h_scan_values->Draw();
-	c->Print(_output_full_name+"_h_scan_values.png");
+	c->Print(_output_full_name+"_h_scan_values.pdf");
+	
+	c->Clear(); c->cd();
+	h_chi2->Draw();
+	c->Print(_output_full_name+"h_chi2.pdf");
 	
 	//c->Clear(); c->cd();
 	//h_fake_rate->Draw();
-	//c->Print(_output_full_name+"_h_fake_rate.png");
+	//c->Print(_output_full_name+"_h_fake_rate.pdf");
 	
 	c->Clear(); c->cd();
-	c->SetGrid();
 	mg_scurves->SetMinimum(0);
-	mg_scurves->SetMaximum(1000);
+	mg_scurves->SetMaximum(_frames_in_run);
 	mg_scurves->Draw("alp*");
-	c->Print(_output_full_name+"_mg_scurves.png");
+	c->Print(_output_full_name+"_mg_scurves.pdf");
 
 	c->Clear(); c->cd();
 	mg_failed_fit->Draw();
-	c->Print(_output_full_name+"mg_failed_fit.png");
+	c->Print(_output_full_name+"mg_failed_fit.pdf");
 	/*
 	
 	c->Clear(); c->cd();
 	mg_sc_badnoise->Draw();
-	c->Print(_output_full_name+"mg_sc_badnoise.png");
+	c->Print(_output_full_name+"mg_sc_badnoise.pdf");
 	
 	c->Clear(); c->cd();
 	mg_sc_badmean->Dc1->SetGrid();raw();
-	c->Print(_output_full_name+"mg_sc_badmean.png");*/
+	c->Print(_output_full_name+"mg_sc_badmean.pdf");*/
 	
 	gStyle->SetOptStat(0);
 	c->Update();
 	
 	c->Clear(); c->cd();
 	h2_mu->Draw("COLZ");
-	c->Print(_output_full_name+"_h2_mu.png");
+	c->Print(_output_full_name+"_h2_mu.pdf");
 
 	c->Clear(); c->cd();
 	h2_noise_sigma->Draw("COLZ");
-	c->Print(_output_full_name+"_h2_noise_sigma.png");
+	c->Print(_output_full_name+"_h2_noise_sigma.pdf");
 
 	c->Clear(); c->cd();
 	h2_empty_pix->Draw("COLZ");
-	c->Print(_output_full_name+"_h2_empty_pix.png");
+	c->Print(_output_full_name+"_h2_empty_pix.pdf");
 
 	//c->Clear(); c->cd();
 	//h2_badnoise_pix->Draw("COLZ");
-	//c->Print(_output_full_name+"_h2_badnoise_pix.png");
+	//c->Print(_output_full_name+"_h2_badnoise_pix.pdf");
 	
 	//c->Clear(); c->cd();
 	//h2_badmean_pix->Draw("COLZ");
-	//c->Print(_output_full_name+"_h2_badmean_pix.png");
+	//c->Print(_output_full_name+"_h2_badmean_pix.pdf");
 	
 	c->Clear(); c->cd();
 	h2_not_saturated_pix->Draw("COLZ");
-	c->Print(_output_full_name+"_h2_not_saturated_pix.png");
+	c->Print(_output_full_name+"_h2_not_saturated_pix.pdf");
 	
 	c->Clear(); c->cd();
 	h2_failed_fit->Draw("COLZ");
-	c->Print(_output_full_name+"_h2_failed_fit.png");	
+	c->Print(_output_full_name+"_h2_failed_fit.pdf");	
 	
 	/*c->Clear(); c->cd();
 	h2_masked_pixels->Draw("COLZ");
-	c->Print(_output_full_name+"_h2_masked_pixels.png");	*/
+	c->Print(_output_full_name+"_h2_masked_pixels.pdf");	*/
 	
 	/*double p1 = _v_MIM_int_frame[0].nb_of_frames;
 	double p2 = h_mu->GetMean();

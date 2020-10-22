@@ -69,6 +69,8 @@ public:
 	std::string	get_scanned_parameter_name();
 
 	//Variables
+	int _run;	//!< Name of first analysis parameter (default VPH). Used for input/output name generation.
+
 	std::string _param_1;	//!< Name of first analysis parameter (default VPH). Used for input/output name generation.
 	std::string _param_2;	//!< Name of second analysis parameter (default VTH). Used for input/output name generation.
 	std::string _param_3;	//!< Name of third analysis parameter on default VBB). Used for input/output name generation.

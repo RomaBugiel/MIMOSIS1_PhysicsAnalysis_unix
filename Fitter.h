@@ -13,7 +13,7 @@
 
 
 /*! \class 		Fitter
- *  \brief 		Makes a S-curves fitting procedure, returns noise and mean of the pixel. 
+ *  \brief 		Makes a S-curves fitting procedure, returns noise, mean, chi2 of the fit of the pixel. 
  *  \author    	Roma Bugiel
  *  \date      	September 2020
  *  \pre       	ROOT installation
@@ -36,7 +36,8 @@ class Fitter {
 		// Variables	
 		std::vector<int> 		_v_global_x;	//!< Vector containing variables for x-coordinate of the S-curves 
 		std::pair<double,double> fit_params;	//!< Fit parameters result: first is a mu of Erf function and seconf is a noise (sigma) of Erf function
-		TGraph *s_curve {nullptr};				//!< Graph with raw data 
+		TF1    *ferf		{nullptr};			//!< TFuction pointer, defined as Err function in #fit_error_function()
+		TGraph *s_curve 	{nullptr};			//!< TGraph with raw data 
 
 		/*! \brief Number of interation needed to get a good fit
 		 * 	\details Good is defined by the user variables given in config file, see this class variables
@@ -75,10 +76,12 @@ class Fitter {
 		void 					 find_min_max(std::vector<int> &v, int &min, int &max);
 		TGraph* 				 get_S_curve();					 //!< \return TGraph with the Erf Fit
 		std::pair<double,double> get_S_curve_fit_params();		 //!< \return std::pair with the first equal to fit 1 parameter (mean) and second to 2 parameter (noise, sigma)
-		void					 make_fit(TGraph* gr, TF1* f);	 //!< Calls ROOT::Fit method, gets the fit parameters and saves in #fit_params
+		double					 get_S_curve_fit_chi2()	;		 //!< \return chi2 of the #ferf
+		void					 make_fit();					 //!< Calls ROOT::Fit method on #ferf and #s_curve, gets the fit parameters and saves in #fit_params.
+
 		
 		/*! \brief Checks if fit is good
-		 * 	\details It takes the values stored in #fit_params that are filled by make_fit method. Basing on values stored inthere, verifies if fit is good or not.
+		 * 	\details It takes the values stored in #fit_params that are filled by #make_fit() method. Basing these values, verifies if fit is good or not.
 		 * 	It is good if:
 		 * 
 		 * 	#_min_accepted_noise > noise (sigma of Erf) > #_max_accepted_noise 
@@ -88,14 +91,14 @@ class Fitter {
 		 *  \return false if above condition is not fulfilled
 		 */
 		bool 					 is_good_fit();
-		void 					 clear(); //!< clears the fit (nulls the #s_curve pointer) and fit parameters stored in #fit_param
+		void 					 clear(); //!< clears the fit (nulls the #s_curve  and #ferf pointer) and fit parameters stored in #fit_param
 		
 		/*! \brief Minimum value of the scanned analysis parameter (min of x-coordinate variables). 
-		*	\details Taken from config_file.cfg. If mean (Erf mean, fit parameter) is below that value, fit is flaged as  failed
+		*	\details Taken from config_file.cfg. If mean (Erf mean, 1 fit parameter) is below that value, fit is flaged as  failed
 		*/
 		int 	_min_param_val; 
 		/*! \brief Maximum value of the scanned analysis parameter (min of x-coordinate variables). 
-		*	\details Taken from config_file.cfg.  If mean (Erf mean, fit parameter) is above that value, fit is flaged as  failed
+		*	\details Taken from config_file.cfg.  If mean (Erf mean, 1 fit parameter) is above that value, fit is flaged as  failed
 		*/
 		int 	_max_param_val; 
 
@@ -104,11 +107,11 @@ class Fitter {
 		
 		int 	_fit_norm_param_fix; 	//!< From config_file. Fixed value of fit 0 param (N in Erf, norm constant). 
 		double 	_fit_noise_param_set;	//!< From config_file. Initial value of noise (Erf sigma).
-		double 	_fit_noise_min_lim;		//!< From config_file. Minimum value of fitting range for sigma and the down condition for accepting fit as a good (noise above this value)
-		double 	_fit_noise_max_lim;		//!< From config_file. Maximum value of fitting range for sigma and the up condition for accepting fit as a good (noise below this value)
+		double 	_fit_noise_min_lim;		//!< From config_file. Minimum value of fitting range for sigma.
+		double 	_fit_noise_max_lim;		//!< From config_file. Maximum value of fitting range for sigma. 
 		double 	_min_accepted_noise;	//!< From config_file. If noise (Erf sigma, fit parameter) is below that value, fit is flaged as  failed
 		double 	_max_accepted_noise;	//!< From config_file. If noise (Erf sigma, fit parameter) is above that value, fit is flaged as  failed
-		int 	_max_refit;				//!< From config_file. Number of fit iteration (fit repetition) to get a good fit (see is_good_fit())
+		int 	_max_refit;				//!< From config_file. Number of fit iteration (fit repetition) to get a good fit (see #is_good_fit())
 		double 	_fit_tolerance;			//!< SetDefaultTolerance value in ROOT::Math::MinimizerOptions	
 		int 	_fit_max_it;			//!< SetDefaultMaxIterations value in ROOT::Math::MinimizerOptions
 		int 	_fit_fun_cal;			//!< SetDefaultMaxFunctionCalls value in ROOT::Math::MinimizerOptions

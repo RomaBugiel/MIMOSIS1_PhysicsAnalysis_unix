@@ -15,7 +15,8 @@
  *  \author    	Roma Bugiel
  *  \date      	September 2020
  *  \pre       	ROOT installation
- *  \warning   	Built of #Pixel
+ *  \details   	Built of #Pixel. Loads "config_file.cfg" configuration which path and name is hard-coded!!
+ *  \todo		Config files name should be added as a parameter 
  */
 
 
@@ -26,7 +27,7 @@ class Matrix {
 		Matrix()	
 			{
 				this->init("config_file.cfg");
-			}; //!< Default constructor
+			}; //!< Default constructor loading config_file.cfg
 		
 		Matrix(int nb_of_row, int nb_of_column) :
 			_nb_of_row(nb_of_row), _nb_of_column(nb_of_column)
@@ -43,13 +44,7 @@ class Matrix {
 		
 		friend std::ostream &operator<<(std::ostream &os, const Matrix &matrix);
 		
-		int	   _nb_of_row	{0}; 	//!< Number of rows in the matrix
-		int	   _nb_of_column{0}; 	//!< Number of columns in the matrix
-		int	   _nb_of_pixels{_nb_of_row*_nb_of_column}; 	//!< Number of all pixels in the matrix.
-
-		double _mean 		{0.0}; 	//!< Pixel noise
-		double _noise 		{0.0}; 	//!< Pixel mean from ERF Function
-		int	   _bad_pixels	{0}; 	//!< Bad pixels are excluded from the analysis.	
+		int	   _bad_pixels	{0}; 	//!< Numer of bad pixels for this matrix. Up to know pixels loaded from txt file in #BadPixelFinder. 
 		
 		std::vector< std::vector <Pixel> > _v2_matrix;	//!< map of pixels
 		
@@ -57,7 +52,7 @@ class Matrix {
 		std::vector< Pixel >	_v_masked_pixels;	//!< list of masked pixels
 
 		int						_actived_selected {0};	//!< if this is >0, only some selected pixel from the matrix are analysed. \return number of pixels activated to the analysis
-		TH2D*					_h2_activated_pixels;	//!< map of activated pixels
+		TH2D*					_h2_activated_pixels;	//!< map of activated pixels if #_actived_selected is on
 		std::vector< Pixel >	_v_activated_pixels; 	//!< list of pixels activated to the analysis
 
 
@@ -66,7 +61,15 @@ class Matrix {
 		void init(const char * config_file);
 		void list_mask_pixels();
 		void list_active_pixels();
+	
 	private:
+	
+		int	   _nb_of_row	{0}; 	//!< Number of rows in the matrix
+		int	   _nb_of_column{0}; 	//!< Number of columns in the matrix
+		int	   _nb_of_pixels{_nb_of_row*_nb_of_column}; 	//!< Number of all pixels in the matrix.
+
+		double _mean 		{0.0}; 	//!< Pixel noise
+		double _noise 		{0.0}; 	//!< Pixel mean from ERF Function
 		
 		TEnv config;
 
