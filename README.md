@@ -48,4 +48,16 @@ For configuration parameters list on HTLM documentation please go: Releated Page
 
 ## Scirpits
 
-
+## Essentail steps for running the software
+* after cloning the repository --> __make__
+* check if outputData directory is created in software dir. 
+* Edit config_file.cfg. Most of the parameters might stay unchanged. One should edit (check): _run, _frames_in_run, _val_min, _val_max, _step, 
+_row_start, _row_end, _column_start, _column_end, _input_tree_file_path, _output_tree_file_path, _fit_norm_param_fix
+* _fit_norm_param_fix should be the same as _frames_in_run 
+* _input_tree_file_path should be in principle the same as output path of DataConverter, also _input_prefix should be the same as _out_prefix 
+* If ones wants to limit the range of the histograms that are plotted for entire matrix, change: _nb_of_row, _nb_of_column
+* To make analysis only for several pixels, put 1 on _active_selected and list this pixels in active_selected.txt
+* To mask pixels, list these pixels in masked_pixels.txt
+_input_file_masked_pixel:		masked_pixels.txt
+_active_selected:				0
+_input_file_active_selected:	active_selected.txt
