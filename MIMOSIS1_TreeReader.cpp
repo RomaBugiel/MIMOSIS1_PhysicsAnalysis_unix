@@ -147,6 +147,9 @@ void MIMOSIS1_TreeReader::load_intput_files()
 	TH2D 						*h2_hit_map;	
 	MIMOSIS1_Single_Run_Dataset	integrated_frame;	
 	std::map<std::string, int> 	run_param;
+	
+	//std::vector<std::vector<int>::iterator> empty_histos_list;
+	std::vector<int> empty_histos_list;
 
 	const int nb_of_bins_x  {(_column_end-_column_start)+1};
 	const int nb_of_bins_y  {(_row_end-_row_start)+1};
@@ -190,18 +193,30 @@ void MIMOSIS1_TreeReader::load_intput_files()
 			//If file is open, open tree
 			tree 	= 	(TTree*) infile -> Get ( (TString) _input_tree_name );
 			
-			h2_integrated_frame_matrix 	= (TH2D*)	infile -> Get ( "h2_integrated_frame_matrix" );
-			h2_integrated_frame_part	= (TH2D*)	infile -> Get ( "h2_integrated_frame_part" );
-			h_fired_pixels_int_frame	= (TH1D*)	infile -> Get ( "h_fired_pixels_int_frame" );
+			if(infile -> GetListOfKeys()->Contains("h2_integrated_frame_matrix"))
+			{
+				h2_integrated_frame_matrix 	= (TH2D*)	infile -> Get ( "h2_integrated_frame_matrix" );
+				h2_integrated_frame_part	= (TH2D*)	infile -> Get ( "h2_integrated_frame_part" );
+				h_fired_pixels_int_frame	= (TH1D*)	infile -> Get ( "h_fired_pixels_int_frame" );
 			
-			integrated_frame.h2_hit_map 	= h2_integrated_frame_matrix; // !!! part or full here?
-			integrated_frame.nb_of_frames 	= _frames_in_run;
-			integrated_frame.run_param 		= run_param;
+				integrated_frame.h2_hit_map 	= h2_integrated_frame_matrix; // !!! part or full here?
+				integrated_frame.nb_of_frames 	= _frames_in_run;
+				integrated_frame.run_param 		= run_param;
 
-			//Fill the vector
-			v_MIM_int_frame.push_back(integrated_frame);
+				//Fill the vector
+				v_MIM_int_frame.push_back(integrated_frame);
+			}
+			else 
+			{ 
+				MSG(WARN, "[TR] For step " << i << " the histos not exists. Probably the ranges of analysis scans are not consistent. Step skipped.");
+				empty_histos_list.push_back(i);
+
+			}
+
+
 		}
-			
+		
+		
 		h2_hit_map 			= nullptr;
 		infile 				= nullptr;
 		tree 				= nullptr;
@@ -209,7 +224,17 @@ void MIMOSIS1_TreeReader::load_intput_files()
 
 	}	
 	
+	for(int i = 0; i < (int)(empty_histos_list.size()); i++) 
+	{	
+		std::vector<int>::iterator p = std::find(v_param_values.begin(), v_param_values.end(), empty_histos_list[i]*_step);
+		v_param_values.erase (p);
+	}
+	
+	_val_min = *std::min_element(v_param_values.begin(), v_param_values.end());
+	_val_max = *std::max_element(v_param_values.begin(), v_param_values.end());
+			
 	MSG(INFO, "[TR] MIMOSIS1_TreeReader built vector from: " + std::to_string(v_MIM_int_frame.size()) + " runs. (" + std::to_string(v_MIM_int_frame.size()) + " integrated frames loaded)  \n");
+	MSG(INFO, "[TR] After empty runs extraction analysis scan is performed from " + std::to_string(_val_min) + " to " + std::to_string(_val_max) + " in " +  TString::Itoa(v_param_values.size(),10)  + " steps."  );
 
 	delete h2_hit_map;
 	delete infile;

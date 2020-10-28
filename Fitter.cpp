@@ -151,7 +151,12 @@ int  Fitter::fit_error_function(std::vector<int> &v_x, std::vector<int> &v_y)
 	{
 		for(int i = 1; i <= _max_refit ; i++ ) 
 		{	
-			ferf 	->	FixParameter(0,	_fit_norm_param_fix); 
+			ferf 	->	FixParameter(0,	_fit_norm_param_fix);
+			ferf 	->	SetParLimits(2, 0.5,_fit_noise_max_lim);
+			ferf 	->	SetParameters(_fit_norm_param_fix, ferf->GetParameter(1), _fit_noise_max_lim); 
+			//ferf	->	SetParLimits(1, 100,_max_param_val );
+			//ferf 	->	SetParLimits(2, 0.1,_fit_noise_max_lim);
+				
 			make_fit();
 			_refitted++;
 			if(is_good_fit()) break;

@@ -159,7 +159,7 @@ void HistoPlotter::init_histo()
 	h2_empty_pix 		= new TH2D("h2_empty_pix", "["+(TString)(std::to_string(_run))+"] Empty pixels (no data from converter)", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
 	h2_not_saturated_pix = new TH2D("h2_not_saturated_pix", "["+(TString)(std::to_string(_run))+"] Pixel that did not reached saturation level (= nb_of_frames)", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
 	h2_failed_fit		= new TH2D("h2_failed_fit", "["+(TString)(std::to_string(_run))+"] Pixels for which the ERF function fit failed", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
-	
+
 	//h2_badnoise_pix	= new TH2D("h2_badnoise_pix", "Pixels with noise qualified as not proper", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
 	//h2_badmean_pix	= new TH2D("h2_badmean_pix", "Pixels with mean qualified as not proper", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
 	mg_scurves 		= 	new TMultiGraph("mg_scurves", "mg_scurves");
@@ -186,10 +186,8 @@ void HistoPlotter::copy_histos()
 	TH2D * histo; 
 
 	for(long unsigned int i = 0; i < _v_MIM_int_frame.size(); i++) 
-	{
+	{	
 		histo = (TH2D*) ((_v_MIM_int_frame[i].h2_hit_map)->Clone());  
-		//vm_hit_map_run[i] ->Write();
-		//histo = nullptr;
 	}
 
 	histo	=  (TH2D*) ((_MIMOSIS1 -> _h2_masked_pixels) 	-> Clone());
@@ -323,6 +321,8 @@ int HistoPlotter::close_output_tree()
  */		
 void HistoPlotter::save_png()
 {	
+	//gStyle->SetPalette(kCool);
+	
 	TCanvas *c = new TCanvas(); 
 	c->cd(); c->SetGrid();
 	h_noise_sigma->GetXaxis()->SetRangeUser(0, h_noise_sigma->GetMean()+10*h_noise_sigma->GetRMS());
@@ -354,13 +354,16 @@ void HistoPlotter::save_png()
 	
 	c->Clear(); c->cd();
 	mg_scurves->SetMinimum(0);
-	mg_scurves->SetMaximum(_frames_in_run);
+	mg_scurves->SetMaximum(_frames_in_run*1.1);
+	//mg_scurves->GetXaxis()->SetRangeUser(0,270);
 	mg_scurves->Draw("alp*");
-	c->Print(_output_full_name+"_mg_scurves.pdf");
+	c->Print(_output_full_name+"_mg_scurves.png");
 
 	c->Clear(); c->cd();
-	mg_failed_fit->Draw();
-	c->Print(_output_full_name+"mg_failed_fit.pdf");
+	mg_failed_fit->SetMinimum(0);
+	mg_failed_fit->SetMaximum(_frames_in_run*1.1);
+	mg_failed_fit->Draw("alp*");
+	c->Print(_output_full_name+"_mg_failed_fit.pdf");
 	/*
 	
 	c->Clear(); c->cd();
@@ -375,10 +378,12 @@ void HistoPlotter::save_png()
 	c->Update();
 	
 	c->Clear(); c->cd();
+	h2_mu->SetMinimum(0);
 	h2_mu->Draw("COLZ");
 	c->Print(_output_full_name+"_h2_mu.pdf");
 
 	c->Clear(); c->cd();
+	h2_noise_sigma->SetMinimum(0);
 	h2_noise_sigma->Draw("COLZ");
 	c->Print(_output_full_name+"_h2_noise_sigma.pdf");
 
