@@ -148,7 +148,7 @@ void HistoPlotter::init_histo()
 	//TH1D
 	h_scan_values	= new TH1D("h_scan_values", "["+(TString)(std::to_string(_run))+"] "+(TString)(_scaned_param) + " scan values (" + (TString)(_output_tree_file_part) + ")", nb_of_values+1, _min_param_val, _max_param_val );
 	h_noise_sigma	= new TH1D("h_noise_sigma", "["+(TString)(std::to_string(_run))+"] Pixels noise histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel noise [e] ; entries", 1000, 0, 100 );
-	h_mu			= new TH1D("h_mu", "["+(TString)(std::to_string(_run))+"] Pixels threshold histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel threshold [e]; entries", ((_max_param_val-_min_param_val))+1, 0.8*_min_param_val, _max_param_val*1.2 );
+	h_mu			= new TH1D("h_mu", "["+(TString)(std::to_string(_run))+"] Pixels threshold histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel threshold [LSB]; entries", ((_max_param_val-_min_param_val))+1, 0.8*_min_param_val, _max_param_val*1.2 );
  	h_chi2			= new TH1D("h_chi2", "["+(TString)(std::to_string(_run))+"] Chi2 of fits for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; chi2; entries", 1000,0,200 );
 
 	//TH2D
@@ -163,16 +163,16 @@ void HistoPlotter::init_histo()
 	//h2_badnoise_pix	= new TH2D("h2_badnoise_pix", "Pixels with noise qualified as not proper", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
 	//h2_badmean_pix	= new TH2D("h2_badmean_pix", "Pixels with mean qualified as not proper", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
 	mg_scurves 		= 	new TMultiGraph("mg_scurves", "mg_scurves");
-	mg_scurves		->	SetTitle("["+(TString)(std::to_string(_run))+"] S curves for " + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
+	mg_scurves		->	SetTitle("["+(TString)(std::to_string(_run))+"] S curves for " + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " [LSB] ; #");
 
 	mg_sc_badnoise 	= 	new TMultiGraph("mg_sc_badnoise", "mg_sc_badnoise");
 	mg_sc_badnoise	->	SetTitle("["+(TString)(std::to_string(_run))+"] S curves with noise higher than 10 for " + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
 
 	mg_sc_badmean 	= 	new TMultiGraph("mg_sc_badmean", "mg_sc_badmean");
-	mg_sc_badmean	->	SetTitle("["+(TString)(std::to_string(_run))+"] S curves with mean higher than min max param " + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
+	mg_sc_badmean	->	SetTitle("["+(TString)(std::to_string(_run))+"] S curves with mean higher than min max param " + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " [LSB] ; #");
 
 	mg_failed_fit	= 	new TMultiGraph("mg_failed_fit", "mg_failed_fit");
-	mg_failed_fit	->	SetTitle("["+(TString)(std::to_string(_run))+"] Failed ERF fits for s" + (TString) _scaned_param + " scan ; " + (TString) _scaned_param + " ; #");
+	mg_failed_fit	->	SetTitle("["+(TString)(std::to_string(_run))+"] Failed ERF fits for s" + (TString) _scaned_param + "  scan ; " + (TString) _scaned_param + " [LSB] ; #");
 
 }   
 
