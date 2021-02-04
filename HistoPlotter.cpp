@@ -27,8 +27,13 @@ std::ostream &operator<<(std::ostream &os, const HistoPlotter &plotter)
 	os << std::setw(30) << "_param_1_value : " 			<< plotter._param_1_value 			<< std::endl;
 	os << std::setw(30) << "_param_2_value : " 			<< plotter._param_2_value 			<< std::endl;
 	os << std::setw(30) << "_param_3_value : " 			<< plotter._param_3_value 			<< std::endl;
-	os << std::setw(30) << "_dac_shift : " 				<< plotter._dac_shift 			<< std::endl;
-	os << std::setw(30) << "_saturation_lvl : " 		<< plotter._saturation_lvl 			<< std::endl;								  									
+	os << std::setw(30) << "_dac_shift : " 				<< plotter._dac_shift 				<< std::endl;
+	os << std::setw(30) << "_saturation_lvl : " 		<< plotter._saturation_lvl 			<< std::endl;		
+	os << std::setw(30) << "_noise_cut_low : " 			<< plotter._noise_cut_low 			<< std::endl;
+	os << std::setw(30) << "_noise_cut_high : " 		<< plotter._noise_cut_high			<< std::endl;
+	os << std::setw(30) << "_threshold_cut_low : " 		<< plotter._threshold_cut_low		<< std::endl;
+	os << std::setw(30) << "_threshold_cut_high : " 	<< plotter._threshold_cut_high		<< std::endl;
+							  									
 	return os;                          
 }
 
@@ -73,7 +78,15 @@ void HistoPlotter::init(const char * config_file)
 	 	
 	 	_dac_shift				=   config.GetValue("_dac_shift", 0);
 
-		_saturation_lvl			=   config.GetValue("_saturation_lvl", 0.5);	                       
+		_saturation_lvl			=   config.GetValue("_saturation_lvl", 0.5);	      
+		
+		_noise_cut_low 			=   config.GetValue("_noise_cut_low", 		0.0);	      
+		_noise_cut_high			=   config.GetValue("_noise_cut_high", 		0.0);	      
+		_threshold_cut_low		=   config.GetValue("_threshold_cut_low", 	0.0);	      
+		_threshold_cut_high		=   config.GetValue("_threshold_cut_high", 	0.0);	      
+		
+		
+		                 
 	}
 	
 	
@@ -146,11 +159,16 @@ void HistoPlotter::init_histo()
 	//vm_hit_map_run.resize(nb_of_values);
 	
 	//TH1D
-	h_scan_values	= new TH1D("h_scan_values", "["+(TString)(std::to_string(_run))+"] "+(TString)(_scaned_param) + " scan values (" + (TString)(_output_tree_file_part) + ")", nb_of_values+1, _min_param_val, _max_param_val );
-	h_noise_sigma	= new TH1D("h_noise_sigma", "["+(TString)(std::to_string(_run))+"] Pixels noise histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel noise [e] ; entries", 1000, 0, 100 );
-	h_mu			= new TH1D("h_mu", "["+(TString)(std::to_string(_run))+"] Pixels threshold histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel threshold [LSB]; entries", ((_max_param_val-_min_param_val))+1, 0.8*_min_param_val, _max_param_val*1.2 );
- 	h_chi2			= new TH1D("h_chi2", "["+(TString)(std::to_string(_run))+"] Chi2 of fits for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; chi2; entries", 1000,0,200 );
+	h_scan_values		= new TH1D("h_scan_values", "["+(TString)(std::to_string(_run))+"] "+(TString)(_scaned_param) + " scan values (" + (TString)(_output_tree_file_part) + ")", nb_of_values+1, _min_param_val, _max_param_val );
+	h_noise_sigma		= new TH1D("h_noise_sigma", "["+(TString)(std::to_string(_run))+"] Pixels noise histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel noise [e] ; entries", 1000, 0, 100 );
+	h_mu				= new TH1D("h_mu", "["+(TString)(std::to_string(_run))+"] Pixels threshold histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel threshold [mV]; entries", ((_max_param_val-_min_param_val))+1, 0.8*_min_param_val, _max_param_val*1.2 );
+ 	h_chi2				= new TH1D("h_chi2", "["+(TString)(std::to_string(_run))+"] Chi2 of fits for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; chi2; entries", 1000,0,200 );
+	h_fake_rate			= new TH1D("h_fake_rate", "["+(TString)(std::to_string(_run))+"] Fake rate for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; fake rate [%] ", ((_max_param_val-_min_param_val))+1, _min_param_val, _max_param_val+1 );
+	h_noisy_pixels 		= new TH1D("h_noisy_pixels", "["+(TString)(std::to_string(_run))+"] Noisy pixels (responded more than 1%) for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; nb of pixels [%] ", ((_max_param_val-_min_param_val))+1, _min_param_val, _max_param_val+1 );
+	h_very_noisy_pixels = new TH1D("h_very_noisy_pixels", "["+(TString)(std::to_string(_run))+"] Noisy pixels (responded more than 1%%) for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; nb of pixels [%] ", ((_max_param_val-_min_param_val))+1, _min_param_val, _max_param_val+1 );
+	h_hit_rate 			= new TH1D("h_hit_rate", "["+(TString)(std::to_string(_run))+"] Hit rate for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; nb of pixels [#] ", ((_max_param_val-_min_param_val))+2, _min_param_val, _max_param_val+2 );
 
+	
 	//TH2D
 	h2_noise_sigma 		= new TH2D("h2_noise_sigma", "["+(TString)(std::to_string(_run))+"] Pixels noise map for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) +  ") ; column; row", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1);
 	h2_mu				= new TH2D("h2_mu", "["+(TString)(std::to_string(_run))+"] Pixels threshold map for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) +  ") ; column; row", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1);
@@ -192,10 +210,59 @@ void HistoPlotter::copy_histos()
 
 	histo	=  (TH2D*) ((_MIMOSIS1 -> _h2_masked_pixels) 	-> Clone());
 	histo	=  (TH2D*) ((_MIMOSIS1 -> _h2_activated_pixels) -> Clone());
-						 
 }
 
+void HistoPlotter::fake_rate()
+{	
+	
+	double norm = _v_MIM_int_frame.size()*_frames_in_run*(_row_end-_row_start)*(_column_end-_column_start);
+	double nb_pix_norm = (_row_end-_row_start)*(_column_end-_column_start);
+	//std::cout << "A 1: " << _v_MIM_int_frame.size() << "\t" << nb_of_frames << std::endl;
+	int row_bin {0};
+	int col_bin {0};	
+	int how_many_hits {0};
+	int nb_of_noisy_pixels {0};
+	int nb_of_very_noisy_pixels {0};
+	double limit_noisy = 0.001 * 5000;
+	double limit_very_noisy = 0.01 * 5000;
 
+	
+	for(long unsigned int i = 0; i < _v_MIM_int_frame.size(); i++) 
+	{	
+		h_hit_rate -> Fill( i+_min_param_val, ( (double)(_v_MIM_int_frame[i].h2_hit_map)->GetEntries()) / 1 ) ;  
+
+		for(int row_it = _row_start; row_it <= _row_end ; row_it++) 
+		{			
+			for(int col_it = _column_start; col_it <= _column_end ; col_it++) 
+			{	
+				col_bin 	= _MIMOSIS1->_h2_masked_pixels->GetXaxis()->FindBin(col_it);
+				row_bin		= _MIMOSIS1->_h2_masked_pixels->GetYaxis()->FindBin(row_it);	
+			
+				how_many_hits 	= (_v_MIM_int_frame[i].h2_hit_map)->GetBinContent(col_bin, row_bin);
+				h_fake_rate	-> SetBinContent(i+1, h_fake_rate->GetBinContent(i+1) + how_many_hits);
+				//std::cout << i << "\t" << col_it << "\t" << row_it << "\t" << h_fake_rate->GetBinContent(col_bin, row_bin) << "\t" << how_many_hits << std::endl;
+			
+				if(how_many_hits >= limit_noisy) 		{nb_of_noisy_pixels++;}
+				if(how_many_hits >= limit_very_noisy) 	{nb_of_very_noisy_pixels++;}
+
+			
+			}
+		}
+		
+		h_noisy_pixels 		-> Fill( i+_min_param_val, nb_of_noisy_pixels 		) ;  
+		h_very_noisy_pixels -> Fill( i+_min_param_val, nb_of_very_noisy_pixels	) ;  
+				
+		nb_of_noisy_pixels		= 0;
+		nb_of_very_noisy_pixels = 0;
+	}
+		
+	
+  
+	h_fake_rate			->Scale(100.0/norm);
+	h_noisy_pixels 		->Scale(100.0/nb_pix_norm);
+    h_very_noisy_pixels ->Scale(100.0/nb_pix_norm);
+
+}
 /*
  * Plots the S-curves
  */
@@ -218,6 +285,17 @@ void HistoPlotter::plot_S_curves()
 	fitter.init("config_file.cfg");
 	std::cout << fitter << std::endl;
 	
+	/*for(int row_it = _row_start; row_it <= _row_end ; row_it++)  {
+	for(int col_it = _column_start; col_it <= _column_end ; col_it++) {
+	
+				col_bin 	= _MIMOSIS1->_h2_masked_pixels->GetXaxis()->FindBin(col_it);
+				row_bin		= _MIMOSIS1->_h2_masked_pixels->GetYaxis()->FindBin(row_it);	
+				std::cout << "Histo Plotter: "  << col_it << "\t" << row_it <<  "\t"<< _MIMOSIS1->_h2_masked_pixels 	-> GetBinContent(col_bin, row_it) << std::endl;
+
+	}}*/
+
+	
+	
 	for(int row_it = _row_start; row_it <= _row_end ; row_it++) 
 	{			
 		for(int col_it = _column_start; col_it <= _column_end ; col_it++) 
@@ -230,8 +308,13 @@ void HistoPlotter::plot_S_curves()
 				if(_MIMOSIS1->_h2_activated_pixels 	-> GetBinContent(col_bin, row_bin) == 0 ) continue;
 			}
 			
-			if(_MIMOSIS1->_h2_masked_pixels 	-> GetBinContent(col_bin, row_bin) == 1 ) continue;
-
+			
+			if(_MIMOSIS1->_h2_masked_pixels 	-> GetBinContent(col_bin, row_bin) != 0 )
+			{ 
+				//std::cout << "masked: " << col_it << "\t" << row_it << "\t" <<  _MIMOSIS1->_h2_masked_pixels 	-> GetBinContent(col_bin, row_bin) << std::endl;
+				continue;
+			}
+			
 			for(int val = 0 ; val < (int) _v_param_values.size() ; val++) 
 			{	
 				h_scan_values->Fill(val);				
@@ -243,7 +326,9 @@ void HistoPlotter::plot_S_curves()
 					
 					
 				how_many_hits 	= (_v_MIM_int_frame[val].h2_hit_map)->GetBinContent(col_bin, row_bin);
+				
 				v_pixel_fired.push_back( how_many_hits );
+				//std::cout << val << "\t" << col_it << "\t" << row_it << "\t" << how_many_hits << std::endl;
 				
 				//Count how many times pixel fired in each frame. If this not happened, S curve will be not fitted,
 				if( how_many_hits >= _saturation_lvl*_v_MIM_int_frame[val].nb_of_frames ) is_saturated ++;
@@ -256,29 +341,54 @@ void HistoPlotter::plot_S_curves()
 			}
 			else
 			{
-				good_fit 	= fitter.fit_error_function(_v_param_values, v_pixel_fired);
-				s_curve		= fitter.get_S_curve();
-				mean_noise 	= fitter.get_S_curve_fit_params();
-				h_chi2		-> Fill( fitter.get_S_curve_fit_chi2() );
-				
-				if(good_fit)
+				/*if(_MIMOSIS1->_h2_masked_pixels 	-> GetBinContent(col_bin, row_bin) == 0 )
 				{
-					h2_noise_sigma		->	Fill(col_it, row_it, mean_noise.second);
-					h2_mu				->	Fill(col_it, row_it, mean_noise.first);
-					h_noise_sigma		->	Fill(mean_noise.second);
-					h_mu				->	Fill(mean_noise.first);
-					mg_scurves			->	Add(s_curve,"L");
-					//std::cout << col_it << "\t" << row_it << "\t" << mean_noise.second << std::endl;
+					std::cout << col_it << "\t" << row_it << "\t" << col_bin << "\t" << row_bin << std::endl;
+ 
+				}
+					if(v_pixel_fired[0] > 0 ) 
+					{
+						std::cout << col_it << "\t" << row_it << std::endl;
+					}
+				*/	
+					good_fit 	= fitter.fit_error_function(_v_param_values, v_pixel_fired);
+					s_curve		= fitter.get_S_curve();
+					mean_noise 	= fitter.get_S_curve_fit_params();
+					h_chi2		-> Fill( fitter.get_S_curve_fit_chi2() );
 					
-				}
-				else
-				{	
-					mg_failed_fit	->	Add(s_curve,"L");
-					h2_failed_fit	->	Fill(col_it, row_it);					
-					//MSG(CNTR, "[HP] Pixel with failed fit: [" +  std::to_string( col_it ) + ", " + std::to_string( row_it )  "]. ---- mean: " +  std::to_string( mean_noise.first ) + ", sigma: " + std::to_string( mean_noise.second ) );
+					//if(  fitter.get_S_curve_fit_chi2() > 150 ) 	std::cout << col_it << "\t" << row_it << std::endl;
 
-				}
-			
+					
+					if(good_fit)
+					{	
+						//if(mean_noise.second >= 20)  { std::cout << col_it << "\t" << row_it << std::endl; }
+						//std::cout << mean_noise.second << "\t" << _noise_cut_low << std::endl;
+						
+						if( (mean_noise.second >= _noise_cut_low) && (mean_noise.second <= _noise_cut_high) ) 
+						{
+						if( (mean_noise.first >= _threshold_cut_low) && (mean_noise.first <= _threshold_cut_high) ) 
+						{
+							////if(mean_noise.second <= _noise_cut_low) 		continue; 		
+							//if(mean_noise.second >= _noise_cut_high) 		continue;
+							//if(mean_noise.first  <= _threshold_cut_low) 	continue;	
+							//if(mean_noise.first  >= _threshold_cut_high) 	continue;
+							
+							
+							h2_noise_sigma		->	Fill(col_it, row_it, mean_noise.second);
+							h2_mu				->	Fill(col_it, row_it, mean_noise.first);
+							h_noise_sigma		->	Fill(mean_noise.second);
+							h_mu				->	Fill(mean_noise.first);
+							mg_scurves			->	Add(s_curve,"L");
+							//std::cout << col_it << "\t" << row_it << "\t" << mean_noise.second << std::endl;
+						}}
+					}
+					else
+					{	
+						mg_failed_fit	->	Add(s_curve,"L");
+						h2_failed_fit	->	Fill(col_it, row_it);					
+						//MSG(CNTR, "[HP] Pixel with failed fit: [" +  std::to_string( col_it ) + ", " + std::to_string( row_it )  "]. ---- mean: " +  std::to_string( mean_noise.first ) + ", sigma: " + std::to_string( mean_noise.second ) );
+
+					}
 			}				
 			
 			fitter.clear();			
@@ -322,23 +432,49 @@ int HistoPlotter::close_output_tree()
 void HistoPlotter::save_png()
 {	
 	//gStyle->SetPalette(kCool);
-	
+	//gStyle->SetTitleFontSize(.1);
+	//gStyle->SetLabelSize(.1, "XY");
+    //gStyle->SetLabelSize(40);
+	gStyle->SetStatY(0.9);                
+	gStyle->SetStatX(0.9);
+	////gStyle->SetStatW(0.2);                
+	//gStyle->SetStatH(2);  
+	//gStyle->SetStatFontSize( 1 );
+
+
 	TCanvas *c = new TCanvas(); 
-	c->cd(); c->SetGrid();
+	c->cd(); c->SetGrid(); 
 	h_noise_sigma->GetXaxis()->SetRangeUser(0, h_noise_sigma->GetMean()+10*h_noise_sigma->GetRMS());
+	//h_noise_sigma->GetXaxis()->SetLabelSize(0.06); 	h_noise_sigma->GetYaxis()->SetLabelSize(0.06);
+	//h_noise_sigma->GetXaxis()->SetTitleSize(0.06); 	h_noise_sigma->GetYaxis()->SetTitleSize(0.06);
 	h_noise_sigma->SetLineWidth(2);
 	h_noise_sigma->SetFillColor(kBlue);
 	h_noise_sigma->SetFillStyle(3244);
+	//h_noise_sigma->GetXaxis()->SetLabelSize(0.35);
 	h_noise_sigma->Draw();
 	c->Print(_output_full_name+"_h_noise_sigma.pdf");
+	c->Print(_output_full_name+"_h_noise_sigma.svg");
+
+	c->Clear(); c->cd();
+	h_hit_rate->SetLineWidth(2);
+	h_hit_rate->SetFillColor(kBlue);
+	h_hit_rate->SetFillStyle(3244);
+	h_hit_rate->Draw("HIST");
+	c->Print(_output_full_name+"_h_hit_rate.pdf");
 	
+	c->Clear(); c->cd();
+	h2_failed_fit->Draw("COLZ");
+	c->Print(_output_full_name+"_h2_failed_fit.pdf");	
 
 	c->Clear(); c->cd();
 	h_mu->SetLineWidth(2);
 	h_mu->SetFillColor(kBlue);
-	h_mu->SetFillStyle(3244);	
+	h_mu->SetFillStyle(3244);
+	//h_mu->GetXaxis()->SetLabelSize(0.06); 	h_mu->GetYaxis()->SetLabelSize(0.06);
+	//h_mu->GetXaxis()->SetTitleSize(0.06); 	h_mu->GetYaxis()->SetTitleSize(0.06);	
 	h_mu->Draw();
 	c->Print(_output_full_name+"_h_mu.pdf");
+	c->Print(_output_full_name+"_h_mu.svg");
 
 	c->Clear(); c->cd();
 	h_scan_values->Draw();
@@ -348,79 +484,90 @@ void HistoPlotter::save_png()
 	h_chi2->Draw();
 	c->Print(_output_full_name+"h_chi2.pdf");
 	
-	//c->Clear(); c->cd();
-	//h_fake_rate->Draw();
-	//c->Print(_output_full_name+"_h_fake_rate.pdf");
-	
 	c->Clear(); c->cd();
 	mg_scurves->SetMinimum(0);
 	mg_scurves->SetMaximum(_frames_in_run*1.1);
+	//mg_scurves->SetMaximum(_frames_in_run*1);
 	//mg_scurves->GetXaxis()->SetRangeUser(0,270);
+	//mg_scurves->GetXaxis()->SetLabelSize(0.06); 	mg_scurves->GetYaxis()->SetLabelSize(0.06);
+	//mg_scurves->GetXaxis()->SetTitleSize(0.06); 	mg_scurves->GetYaxis()->SetTitleSize(0.06);
 	mg_scurves->Draw("alp*");
 	c->Print(_output_full_name+"_mg_scurves.png");
-
-	c->Clear(); c->cd();
+	
+	/*c->Clear(); c->cd();
+	mg_scurves->SetMinimum(0);
+	mg_scurves->SetMaximum(_frames_in_run*1.1);
+	//mg_scurves->SetMaximum(_frames_in_run*1);
+	//mg_scurves->GetXaxis()->SetRangeUser(50,350)
+	mg_scurves->GetXaxis()->SetLimits(50,350);
+	c->Modified();
+	//mg_scurves->GetXaxis()->SetLabelSize(0.06); 	mg_scurves->GetYaxis()->SetLabelSize(0.06);
+	//mg_scurves->GetXaxis()->SetTitleSize(0.06); 	mg_scurves->GetYaxis()->SetTitleSize(0.06);
+	mg_scurves->Draw("alp*");
+	c->Print(_output_full_name+"_mg_scurves_mg.png");
+	*/
+	c->Clear(); c->cd(); gPad->SetFrameFillColor(kBlack);
 	mg_failed_fit->SetMinimum(0);
 	mg_failed_fit->SetMaximum(_frames_in_run*1.1);
 	mg_failed_fit->Draw("alp*");
 	c->Print(_output_full_name+"_mg_failed_fit.pdf");
-	/*
 	
 	c->Clear(); c->cd();
-	mg_sc_badnoise->Draw();
-	c->Print(_output_full_name+"mg_sc_badnoise.pdf");
+	h2_not_saturated_pix->Draw("COLZ");
+//	c->Print(_output_full_name+"_h2_not_saturated_pix.pdf");
+	c->Print(_output_full_name+"_h2_not_saturated_pix.png");
 	
-	c->Clear(); c->cd();
-	mg_sc_badmean->Dc1->SetGrid();raw();
-	c->Print(_output_full_name+"mg_sc_badmean.pdf");*/
-	
+	gPad->SetFrameFillColor(kWhite);
 	gStyle->SetOptStat(0);
 	c->Update();
 	
 	c->Clear(); c->cd();
-	h2_mu->SetMinimum(0);
+	h2_mu->SetMinimum(_min_param_val);
+	h2_mu->SetMaximum(h_mu->GetMean()+6*h_mu->GetRMS());
+	//h2_mu->GetXaxis()->SetLabelSize(0.06); 	h2_mu->GetYaxis()->SetLabelSize(0.06);
+	//h2_mu->GetXaxis()->SetTitleSize(0.06); 	h2_mu->GetYaxis()->SetTitleSize(0.06);
 	h2_mu->Draw("COLZ");
-	c->Print(_output_full_name+"_h2_mu.pdf");
+//	c->Print(_output_full_name+"_h2_mu.pdf");
+	c->Print(_output_full_name+"_h2_mu.png");
+	//c->Print(_output_full_name+"_h2_mu.svg");
 
 	c->Clear(); c->cd();
 	h2_noise_sigma->SetMinimum(0);
+	h2_noise_sigma->SetMaximum(10);
+	//h2_noise_sigma->GetXaxis()->SetLabelSize(0.06); 	h2_noise_sigma->GetYaxis()->SetLabelSize(0.06);
+	//h2_noise_sigma->GetXaxis()->SetTitleSize(0.06); 	h2_noise_sigma->GetYaxis()->SetTitleSize(0.06);
 	h2_noise_sigma->Draw("COLZ");
-	c->Print(_output_full_name+"_h2_noise_sigma.pdf");
+//	c->Print(_output_full_name+"_h2_noise_sigma.pdf");
+	c->Print(_output_full_name+"_h2_noise_sigma.png");
+	//c->Print(_output_full_name+"_h2_noise_sigma.svg");
 
 	c->Clear(); c->cd();
 	h2_empty_pix->Draw("COLZ");
-	c->Print(_output_full_name+"_h2_empty_pix.pdf");
+//	c->Print(_output_full_name+"_h2_empty_pix.pdf");
+	c->Print(_output_full_name+"_h2_empty_pix.png");
 
-	//c->Clear(); c->cd();
-	//h2_badnoise_pix->Draw("COLZ");
-	//c->Print(_output_full_name+"_h2_badnoise_pix.pdf");
+	c->Clear(); c->cd(); c -> SetLogy();
+	h_fake_rate->SetLineWidth(2);
+	h_fake_rate->SetFillColor(kBlue);
+	h_fake_rate->SetFillStyle(3244);
+	h_fake_rate->Draw("HIST");
+	c->Print(_output_full_name+"_h_fake_rate.pdf");
 	
-	//c->Clear(); c->cd();
-	//h2_badmean_pix->Draw("COLZ");
-	//c->Print(_output_full_name+"_h2_badmean_pix.pdf");
 	
-	c->Clear(); c->cd();
-	h2_not_saturated_pix->Draw("COLZ");
-	c->Print(_output_full_name+"_h2_not_saturated_pix.pdf");
+	c->Clear(); c->cd(); c -> SetLogy();
+	h_noisy_pixels->SetLineWidth(2);
+	h_noisy_pixels->SetFillColor(kBlue);
+	h_noisy_pixels->SetFillStyle(3244);
+	h_noisy_pixels->Draw("HIST");
+	c->Print(_output_full_name+"_h_noisy_pixels.pdf");
 	
-	c->Clear(); c->cd();
-	h2_failed_fit->Draw("COLZ");
-	c->Print(_output_full_name+"_h2_failed_fit.pdf");	
 	
-	/*c->Clear(); c->cd();
-	h2_masked_pixels->Draw("COLZ");
-	c->Print(_output_full_name+"_h2_masked_pixels.pdf");	*/
-	
-	/*double p1 = _v_MIM_int_frame[0].nb_of_frames;
-	double p2 = h_mu->GetMean();
-	double p3 = h_noise_sigma->GetMean();
-
-	TF1 *ferf  = new TF1("ferf","0.5*[0]*(1+TMath::Erf((x-[1])/TMath::Sqrt2()*[2]))",0,150);
-	ferf->SetParameters(p1,p2,p3);
-	ferf->SetTitle("Erf function with N = 1000, mean = " + (TString)std::to_string(p2) + " and noise = " +  (TString)std::to_string(p3) + "; vpulse; val" );
-	c->Clear(); c->cd();
-	ferf->Draw("");
-	c->Print(_output_full_name+"_S_curve_sim.png");	*/
+	c->Clear(); c->cd(); c -> SetLogy();
+	h_very_noisy_pixels->SetLineWidth(2);
+	h_very_noisy_pixels->SetFillColor(kBlue);
+	h_very_noisy_pixels->SetFillStyle(3244);
+	h_very_noisy_pixels->Draw("HIST");
+	c->Print(_output_full_name+"_h_very_noisy_pixels.pdf");
 
 }
 

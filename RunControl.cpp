@@ -37,6 +37,8 @@ int main()
 	tree_reader		->		load_intput_files();
 	std::cout 		<< 		*tree_reader << std::endl;
 
+
+
 	//Initializie HistoPlotter providing Matrix, input data and list of run parameters
 	HistoPlotter	*test_vph = new HistoPlotter 
 								( 
@@ -51,6 +53,7 @@ int main()
 	test_vph		->		open_output_tree();
 	test_vph		->		init_histo();
 	test_vph		->		copy_histos();
+	test_vph		->		fake_rate();
 	test_vph		->		plot_S_curves();
 	test_vph		->		save_png();
 	test_vph		->		close_output_tree();

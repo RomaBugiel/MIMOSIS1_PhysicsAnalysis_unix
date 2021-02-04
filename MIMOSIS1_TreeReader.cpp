@@ -132,6 +132,9 @@ void MIMOSIS1_TreeReader::init(const char * config_file)
 	}
 	
 	extract_scan_values_list();
+	
+	//h_fake_rate		= new TH1D("h_fake_rate", "["+(TString)(std::to_string(_run))+"] Fake rate for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; chi2; entries", ((_val_max-_val_min)), _val_min, _val_max  );
+
 }
 
 /*
@@ -198,7 +201,7 @@ void MIMOSIS1_TreeReader::load_intput_files()
 				h2_integrated_frame_matrix 	= (TH2D*)	infile -> Get ( "h2_integrated_frame_matrix" );
 				h2_integrated_frame_part	= (TH2D*)	infile -> Get ( "h2_integrated_frame_part" );
 				h_fired_pixels_int_frame	= (TH1D*)	infile -> Get ( "h_fired_pixels_int_frame" );
-			
+				
 				integrated_frame.h2_hit_map 	= h2_integrated_frame_matrix; // !!! part or full here?
 				integrated_frame.nb_of_frames 	= _frames_in_run;
 				integrated_frame.run_param 		= run_param;

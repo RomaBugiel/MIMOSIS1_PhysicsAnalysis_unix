@@ -50,10 +50,17 @@ void Matrix::list_mask_pixels()
 	MSG(INFO, "[MAT] There is: " + std::to_string(_v_masked_pixels.size()) + " pixels marked as bad for this matrix.");
 	std::cout << "List of masked pixels: " << std::endl;
 
-	for(auto &i : _v_masked_pixels) 
+	/*for(auto &i : _v_masked_pixels) 
 	{	
 		std::cout << i._pixel_address.first << "\t" << i._pixel_address.second << std::endl;
-	}
+	}*/
+
+	/*for(int i = 0; i < _nb_of_column; i++) {
+			for(int j = 0; j < _nb_of_row; j++) {
+					if((_h2_masked_pixels)->GetBinContent(i+1, j+1) != 0) 
+					{ std::cout << "!!!! Plotting histio in Matrix list_mask_pixels " << i << "\t" << j << "\t" <<(_h2_masked_pixels)->GetBinContent(i+1, j+1) << std::endl;}
+	}}*/
+
 
 }
 

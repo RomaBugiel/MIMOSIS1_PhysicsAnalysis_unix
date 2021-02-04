@@ -110,7 +110,8 @@ public:
 	TH2D *h2_integrated_frame_matrix; 	//!< Integrated hit map of N frames plotted for entire matrix.
 	TH2D *h2_integrated_frame_part;		//!< Integrated hit map of N frames plotted for part of matrix.
 	TH1D *h_fired_pixels_int_frame;		//!< 1-dim histogram  of integrated hit map (Multiplicity of pixel hits in N (=frames_in_run) frames)
-
+		
+					//!< Fake rate, usefull for noise run scans
 private:
 	
 	TEnv config;

@@ -16,7 +16,8 @@
  *  \date      	September 2020
  *  \pre       	ROOT installation
  *  \details   	Built of #Pixel. Loads "config_file.cfg" configuration which path and name is hard-coded!!
- *  \todo		Config files name should be added as a parameter 
+ *  \todo		Config files name should be added as a parameter. 
+ *  \todo 		Mask list should be changed to set instead of vector
  */
 
 
@@ -49,7 +50,9 @@ class Matrix {
 		std::vector< std::vector <Pixel> > _v2_matrix;	//!< map of pixels
 		
 		TH2D*					_h2_masked_pixels;	//!< map of masked pixels
-		std::vector< Pixel >	_v_masked_pixels;	//!< list of masked pixels
+		std::vector< Pixel >	_v_masked_pixels;	//!< list of masked pixels 
+		//std::set<Pixel>		_v_masked_pixels;	//!< set of masked pixels 
+
 
 		int						_actived_selected {0};	//!< if this is >0, only some selected pixel from the matrix are analysed. \return number of pixels activated to the analysis
 		TH2D*					_h2_activated_pixels;	//!< map of activated pixels if #_actived_selected is on

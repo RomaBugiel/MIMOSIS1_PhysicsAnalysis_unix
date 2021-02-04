@@ -84,6 +84,10 @@ void BadPixelFinder::execute()
 		 load_activate_selected_file();
 		_MIMOSIS1	->	list_active_pixels();
 	}
+
+	std::cout << "!!!! check: " << (_MIMOSIS1->_h2_masked_pixels)->GetEntries() << std::endl;
+	std::cout << "!!!! check: " << (_MIMOSIS1->_v_masked_pixels).size() << std::endl;
+
 }
 
 /*
@@ -127,7 +131,10 @@ void BadPixelFinder::load_masked_pixel_file()
 	std::string line;
 	std::fstream in_masked(_input_file_masked_pixel, std::fstream::in | std::fstream::out );
 	Pixel masked_pixel;
+	int col_bin ;
+	int row_bin ;
 	
+	std::cout << "-----load_masked_pixel_file---" << std::endl;
 	
 	if (in_masked.is_open())
 	{
@@ -135,19 +142,43 @@ void BadPixelFinder::load_masked_pixel_file()
 		
 		while ( in_masked >> (masked_pixel._pixel_address).first >> (masked_pixel._pixel_address).second  )
 		{
+			
+			col_bin 	= _MIMOSIS1->_h2_masked_pixels->GetXaxis()->FindBin((masked_pixel._pixel_address).first);
+			row_bin		= _MIMOSIS1->_h2_masked_pixels->GetYaxis()->FindBin((masked_pixel._pixel_address).second);	
+			
+			
 			(_MIMOSIS1 -> _bad_pixels)++;
-			(_MIMOSIS1 -> _v_masked_pixels).push_back(masked_pixel);
+			
+			if( (_MIMOSIS1 -> _h2_masked_pixels) -> GetBinContent(col_bin, row_bin) == 0)
+			{
+				(_MIMOSIS1 -> _v_masked_pixels).push_back(masked_pixel); 
+			}
+			
 			(_MIMOSIS1 -> _h2_masked_pixels) -> Fill (masked_pixel._pixel_address.first, masked_pixel._pixel_address.second);
-
-			//std::cout << (masked_pixel->_pixel_address).first  << "\t" << (masked_pixel->_pixel_address).second << std::endl;
+			
+			//std::cout << masked_pixel._pixel_address.first << "\t" << masked_pixel._pixel_address.second << "\t" << col_bin << "\t" << row_bin << std::endl;
+			
 		}
 		
+		std::cout << "load_masked_pixel_file ENTRIES: " << (_MIMOSIS1 -> _h2_masked_pixels)->GetEntries() <<std::endl;
+		
+				
 		in_masked.close();
 	}
 	else
 	{
 		MSG(WARN, "[BPF] No file with masked pisels found");
 	}
+	
+	/*std::cout << "!!!! load_masked_pixel_file check after filling: " << std::endl;
+	for(int j = _column_start; j < _column_end; j++) {
+	for(int i = _row_start; 	i < _row_end; i++) {
+
+		col_bin 	= _MIMOSIS1->_h2_masked_pixels->GetXaxis()->FindBin(j);
+		row_bin		= _MIMOSIS1->_h2_masked_pixels->GetYaxis()->FindBin(i);	
+
+		std::cout << col_bin << "\t" << j << "\t" <<  row_bin << "\t" << i << "\t" << (_MIMOSIS1 -> _h2_masked_pixels)->GetBinContent(col_bin, row_bin) << std::endl;
+	}}*/
 	
 }
 

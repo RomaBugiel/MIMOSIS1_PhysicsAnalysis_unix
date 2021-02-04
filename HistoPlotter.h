@@ -90,6 +90,7 @@ class HistoPlotter {
 		 * 	- TH1D* #h_noise_sigma;
 		 * 	- TH1D* #h_mu;
 		 * 	- TH1D* #h_scan_values;	
+		 *  - TH1D* #h_fake_rate;	
 		 * 	- TH2D* #test2, *test;
 		 * 	- TMultiGraph *#mg_scurves;
 		 * 	- TMultiGraph *#mg_sc_badnoise;
@@ -135,6 +136,8 @@ class HistoPlotter {
 		/*! \brief Saves the histograms as images */
 		void 	save_png();
 
+		/*! \brief Generate fake rate plot */
+		void 	fake_rate();
 		
 		//Histos
 		//std::vector<TH2D*> vm_hit_map_run;
@@ -149,8 +152,13 @@ class HistoPlotter {
 		TH1D* h_noise_sigma;	//!< 1-D histo of pixel noise (from selected part of matrix)
 		TH1D* h_mu;				//!< 1-D histo of pixel mean (from selected part of matrix)
 		TH1D* h_scan_values;	//!< 1-D histo scanned parameter values
-		TH1D* h_fake_rate;		//!< 1-D histo produced in #BadPixelFinder 
+		//TH1D* h_fake_rate;		//!< 1-D histo produced in #BadPixelFinder 
 		TH1D* h_chi2;			//!< 1-D histo of fits chi2
+		TH1D* h_fake_rate;		//!< 1-D fake rate for noise scans \todo should be in BadPixelFinder not here. At least somewheras else.
+		TH1D* h_noisy_pixels;	//!< 1-D the histo of how many pixels responded for particular scan value \todo should be in BadPixelFinder not here. At least somewheras else.
+		TH1D* h_very_noisy_pixels;
+		TH1D* h_hit_rate;
+		
 		TMultiGraph *mg_scurves;		//!< Multigraph of all S-curves with fits
 		TMultiGraph *mg_sc_badnoise;	//!< Multigraph of "bad" noise pixels S-curves with fits
 		TMultiGraph *mg_sc_badmean;		//!< Multigraph of "bad" mean pixels S-curves with fits
@@ -166,6 +174,11 @@ class HistoPlotter {
 		int 	_min_param_val; //!< Minimum value of the scanned analysis parameter. 
 		int 	_max_param_val; //!< Maximum value of the scanned analysis parameter. 
 		double  _saturation_lvl; //!< [0 - 1] determines the level of pixel saturation that has to be achieved, to start the fitting procedure
+	
+		double _noise_cut_low ;
+		double _noise_cut_high;
+		double _threshold_cut_low;
+		double _threshold_cut_high;
 	
 	#ifndef DOXYGEN_SHOULD_SKIP_THIS
 		
