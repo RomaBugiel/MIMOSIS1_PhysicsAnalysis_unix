@@ -85,8 +85,8 @@ void BadPixelFinder::execute()
 		_MIMOSIS1	->	list_active_pixels();
 	}
 
-	std::cout << "!!!! check: " << (_MIMOSIS1->_h2_masked_pixels)->GetEntries() << std::endl;
-	std::cout << "!!!! check: " << (_MIMOSIS1->_v_masked_pixels).size() << std::endl;
+	//std::cout << "!!!! check: " << (_MIMOSIS1->_h2_masked_pixels)->GetEntries() << std::endl;
+	///std::cout << "!!!! check: " << (_MIMOSIS1->_v_masked_pixels).size() << std::endl;
 
 }
 

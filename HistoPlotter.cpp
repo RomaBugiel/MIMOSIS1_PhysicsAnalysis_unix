@@ -162,7 +162,7 @@ void HistoPlotter::init_histo()
 	h_scan_values		= new TH1D("h_scan_values", "["+(TString)(std::to_string(_run))+"] "+(TString)(_scaned_param) + " scan values (" + (TString)(_output_tree_file_part) + ")", nb_of_values+1, _min_param_val, _max_param_val );
 	h_noise_sigma		= new TH1D("h_noise_sigma", "["+(TString)(std::to_string(_run))+"] Pixels noise histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel noise [e] ; entries", 1000, 0, 100 );
 	h_mu				= new TH1D("h_mu", "["+(TString)(std::to_string(_run))+"] Pixels threshold histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel threshold [mV]; entries", ((_max_param_val-_min_param_val))+1, 0.8*_min_param_val, _max_param_val*1.2 );
- 	h_chi2				= new TH1D("h_chi2", "["+(TString)(std::to_string(_run))+"] Chi2 of fits for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; chi2; entries", 1000,0,200 );
+ 	h_chi2				= new TH1D("h_chi2", "["+(TString)(std::to_string(_run))+"] Chi2/NDF for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; chi2; entries", 500,0,100 );
 	h_fake_rate			= new TH1D("h_fake_rate", "["+(TString)(std::to_string(_run))+"] Fake rate for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; fake rate [%] ", ((_max_param_val-_min_param_val))+1, _min_param_val, _max_param_val+1 );
 	h_noisy_pixels 		= new TH1D("h_noisy_pixels", "["+(TString)(std::to_string(_run))+"] Noisy pixels (responded more than 1%) for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; nb of pixels [%] ", ((_max_param_val-_min_param_val))+1, _min_param_val, _max_param_val+1 );
 	h_very_noisy_pixels = new TH1D("h_very_noisy_pixels", "["+(TString)(std::to_string(_run))+"] Noisy pixels (responded more than 1%%) for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; nb of pixels [%] ", ((_max_param_val-_min_param_val))+1, _min_param_val, _max_param_val+1 );
@@ -455,6 +455,8 @@ void HistoPlotter::save_png()
 	c->Print(_output_full_name+"_h_noise_sigma.pdf");
 	c->Print(_output_full_name+"_h_noise_sigma.svg");
 
+	
+
 	c->Clear(); c->cd();
 	h_hit_rate->SetLineWidth(2);
 	h_hit_rate->SetFillColor(kBlue);
@@ -474,15 +476,19 @@ void HistoPlotter::save_png()
 	//h_mu->GetXaxis()->SetTitleSize(0.06); 	h_mu->GetYaxis()->SetTitleSize(0.06);	
 	h_mu->Draw();
 	c->Print(_output_full_name+"_h_mu.pdf");
-	c->Print(_output_full_name+"_h_mu.svg");
-
+	//c->Print(_output_full_name+"_h_mu.svg");
+	
 	c->Clear(); c->cd();
 	h_scan_values->Draw();
 	c->Print(_output_full_name+"_h_scan_values.pdf");
 	
 	c->Clear(); c->cd();
+	h_chi2->SetLineWidth(2);
+	h_chi2->SetFillColor(kBlue);
+	h_chi2->SetFillStyle(3244);
 	h_chi2->Draw();
-	c->Print(_output_full_name+"h_chi2.pdf");
+	c->Print(_output_full_name+"_h_chi2.pdf");
+
 	
 	c->Clear(); c->cd();
 	mg_scurves->SetMinimum(0);
@@ -494,18 +500,7 @@ void HistoPlotter::save_png()
 	mg_scurves->Draw("alp*");
 	c->Print(_output_full_name+"_mg_scurves.png");
 	
-	/*c->Clear(); c->cd();
-	mg_scurves->SetMinimum(0);
-	mg_scurves->SetMaximum(_frames_in_run*1.1);
-	//mg_scurves->SetMaximum(_frames_in_run*1);
-	//mg_scurves->GetXaxis()->SetRangeUser(50,350)
-	mg_scurves->GetXaxis()->SetLimits(50,350);
-	c->Modified();
-	//mg_scurves->GetXaxis()->SetLabelSize(0.06); 	mg_scurves->GetYaxis()->SetLabelSize(0.06);
-	//mg_scurves->GetXaxis()->SetTitleSize(0.06); 	mg_scurves->GetYaxis()->SetTitleSize(0.06);
-	mg_scurves->Draw("alp*");
-	c->Print(_output_full_name+"_mg_scurves_mg.png");
-	*/
+
 	c->Clear(); c->cd(); gPad->SetFrameFillColor(kBlack);
 	mg_failed_fit->SetMinimum(0);
 	mg_failed_fit->SetMaximum(_frames_in_run*1.1);
@@ -541,6 +536,7 @@ void HistoPlotter::save_png()
 	c->Print(_output_full_name+"_h2_noise_sigma.png");
 	//c->Print(_output_full_name+"_h2_noise_sigma.svg");
 
+
 	c->Clear(); c->cd();
 	h2_empty_pix->Draw("COLZ");
 //	c->Print(_output_full_name+"_h2_empty_pix.pdf");
@@ -568,7 +564,28 @@ void HistoPlotter::save_png()
 	h_very_noisy_pixels->SetFillStyle(3244);
 	h_very_noisy_pixels->Draw("HIST");
 	c->Print(_output_full_name+"_h_very_noisy_pixels.pdf");
-
+	
+	c->cd(); c->SetGrid(); c -> SetLogy();
+	h_noise_sigma->GetXaxis()->SetRangeUser(0, h_noise_sigma->GetMean()+10*h_noise_sigma->GetRMS());
+	h_noise_sigma->SetLineWidth(2);
+	h_noise_sigma->SetFillColor(kBlue);
+	h_noise_sigma->SetFillStyle(3244);
+	h_noise_sigma->Draw();
+	c->Print(_output_full_name+"_h_noise_sigma_log.pdf");
+	
+	c->Clear(); c->cd(); c -> SetLogy();
+	h_mu->SetLineWidth(2);
+	h_mu->SetFillColor(kBlue);
+	h_mu->SetFillStyle(3244);
+	h_mu->Draw();
+	c->Print(_output_full_name+"_h_mu_log.pdf");
+	
+	c->Clear(); c->cd(); c -> SetLogy();
+	h_chi2->SetLineWidth(2);
+	h_chi2->SetFillColor(kBlue);
+	h_chi2->SetFillStyle(3244);
+	h_chi2->Draw();
+	c->Print(_output_full_name+"_h_chi2_log.pdf");
 }
 
 		

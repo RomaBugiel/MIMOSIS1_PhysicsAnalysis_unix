@@ -1,16 +1,53 @@
 #!/bin/bash
 
-run=113
+run=26035
+chip=26
+matrix='A'
+
+VCASN=120
 backbias=2000
-VCASN=103
+
 val_min=0
-val_max=145
+val_max=195
 step=5
+
 row_start=1
 row_end=503
+
+vplvph_shift=25
+
+
+#column_start=0
+#column_end=127
+
+case ${matrix} in
+A)
+column_start=0
+column_end=127
+echo "--> matrix A analysed from ${column_start} to ${column_end}"
+;;
+B)
+column_start=128
+column_end=511
+echo "--> matrix A analysed from ${column_start} to ${column_end}"
+;;
+C)
+column_start=512
+column_end=895
+echo "--> matrix A analysed from ${column_start} to ${column_end}"
+;;
+D)
 column_start=896
 column_end=1023
-vplvph_shift=85
+echo "--> matrix A analysed from ${column_start} to ${column_end}"
+;;
+*)
+column_start=0
+column_end=127
+echo "--> WRONG MATRIX INDEX PROVIDED, specify A, B, C or D. Default taken for column ranges: ${column_start} to ${column_end}"
+;;
+esac
+
 
 mkdir -p ./outputData/run_${run}
 
@@ -18,7 +55,8 @@ rm 	config_file.cfg
 touch 	config_file.cfg
 
 
-echo "_input_file_masked_pixel:	masked_pixels_no2.txt" >> config_file.cfg	
+echo "_input_file_masked_pixel:	./masked/masked_pixels_no${chip}_${matrix}_${VCASN}_${backbias}.txt" >> config_file.cfg	
+
 echo "_active_selected:		0" >> config_file.cfg		
 echo "_input_file_active_selected:	active_selected.txt" >> config_file.cfg	
 
@@ -50,7 +88,7 @@ echo "_enable_scan:		2" >> config_file.cfg
 
 echo "_dac_shift:		${vplvph_shift}" >> config_file.cfg	
 
-echo "_input_tree_file_path:		/home/mgoffe/MIMOSIS1/MIMOSIS1_DataConverter_unix/outputData/run_${run}" >> config_file.cfg	
+echo "_input_tree_file_path:		/home/roma/Software/MIMOSIS1/MIMOSIS1_DataConverter_unix/outputData/run_${run}" >> config_file.cfg	
 echo "_input_tree_file_name_core:	mimosis1" >> config_file.cfg	
 echo "_input_tree_name: 		mimosis1_raw_tree" >> config_file.cfg	
 echo "_input_prefix: 			_noPLL" >> config_file.cfg	
@@ -83,7 +121,9 @@ echo "_threshold_cut_high:		10000000" >> config_file.cfg
 echo "" 
 echo "ANALYSIS DONE -- CHECK RESULTS"
 
+#i=1
 
+#done
 
 
 

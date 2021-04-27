@@ -72,7 +72,7 @@ std::pair<double,double> Fitter::get_S_curve_fit_params()
 double Fitter::get_S_curve_fit_chi2()
 {	
 	//Not well written
-	return ferf->GetChisquare() /(double)(ferf->GetNumberFreeParameters());
+	return ferf->GetChisquare() /(double)(ferf-> GetNDF());
 }
 
 /*
