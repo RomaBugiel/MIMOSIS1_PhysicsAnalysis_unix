@@ -1,11 +1,11 @@
 #!/bin/bash
 
-run=26035
-chip=26
-matrix='A'
+run=23006
+chip=23
+matrix='B'
 
-VCASN=120
-backbias=2000
+VCASN=110
+backbias=1000
 
 val_min=0
 val_max=195
@@ -14,7 +14,7 @@ step=5
 row_start=1
 row_end=503
 
-vplvph_shift=25
+vplvph_shift=79
 
 
 #column_start=0
@@ -29,17 +29,17 @@ echo "--> matrix A analysed from ${column_start} to ${column_end}"
 B)
 column_start=128
 column_end=511
-echo "--> matrix A analysed from ${column_start} to ${column_end}"
+echo "--> matrix B analysed from ${column_start} to ${column_end}"
 ;;
 C)
 column_start=512
 column_end=895
-echo "--> matrix A analysed from ${column_start} to ${column_end}"
+echo "--> matrix C analysed from ${column_start} to ${column_end}"
 ;;
 D)
 column_start=896
 column_end=1023
-echo "--> matrix A analysed from ${column_start} to ${column_end}"
+echo "--> matrix D analysed from ${column_start} to ${column_end}"
 ;;
 *)
 column_start=0
