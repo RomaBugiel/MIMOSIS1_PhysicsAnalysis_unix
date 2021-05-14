@@ -215,7 +215,7 @@ void HistoPlotter::copy_histos()
 void HistoPlotter::fake_rate()
 {	
 	
-	double norm = _v_MIM_int_frame.size()*_frames_in_run*(_row_end-_row_start)*(_column_end-_column_start);
+	double norm = _frames_in_run*(_row_end-_row_start)*(_column_end-_column_start);
 	double nb_pix_norm = (_row_end-_row_start)*(_column_end-_column_start);
 	//std::cout << "A 1: " << _v_MIM_int_frame.size() << "\t" << nb_of_frames << std::endl;
 	int row_bin {0};
