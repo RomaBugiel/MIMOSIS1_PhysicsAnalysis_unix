@@ -88,7 +88,7 @@ echo "_enable_scan:		2" >> config_file.cfg
 
 echo "_dac_shift:		${vplvph_shift}" >> config_file.cfg	
 
-echo "_input_tree_file_path:		/home/roma/Software/MIMOSIS1/MIMOSIS1_DataConverter_unix/outputData/run_${run}" >> config_file.cfg	
+echo "_input_tree_file_path:		../MIMOSIS1_DataConverter_unix/outputData/run_${run}" >> config_file.cfg	
 echo "_input_tree_file_name_core:	mimosis1" >> config_file.cfg	
 echo "_input_tree_name: 		mimosis1_raw_tree" >> config_file.cfg	
 echo "_input_prefix: 			_noPLL" >> config_file.cfg	

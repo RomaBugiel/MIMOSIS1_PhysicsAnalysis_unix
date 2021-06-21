@@ -161,11 +161,11 @@ void HistoPlotter::init_histo()
 	//TH1D
 	h_scan_values		= new TH1D("h_scan_values", "["+(TString)(std::to_string(_run))+"] "+(TString)(_scaned_param) + " scan values (" + (TString)(_output_tree_file_part) + ")", nb_of_values+1, _min_param_val, _max_param_val );
 	h_noise_sigma		= new TH1D("h_noise_sigma", "["+(TString)(std::to_string(_run))+"] Pixels noise histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel noise [e] ; entries", 1000, 0, 100 );
-	h_mu				= new TH1D("h_mu", "["+(TString)(std::to_string(_run))+"] Pixels threshold histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel threshold [mV]; entries", ((_max_param_val-_min_param_val))+1, 0.8*_min_param_val, _max_param_val*1.2 );
+	h_mu				= new TH1D("h_mu", "["+(TString)(std::to_string(_run))+"] Pixels threshold histo for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; pixel threshold [mV]; entries", _v_param_values.size(), 0.8*_min_param_val, _max_param_val*1.2 );
  	h_chi2				= new TH1D("h_chi2", "["+(TString)(std::to_string(_run))+"] Chi2/NDF for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; chi2; entries", 500,0,100 );
-	h_fake_rate			= new TH1D("h_fake_rate", "["+(TString)(std::to_string(_run))+"] Fake rate for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; fake rate [%] ", ((_max_param_val-_min_param_val))+1, _min_param_val, _max_param_val+1 );
-	h_noisy_pixels 		= new TH1D("h_noisy_pixels", "["+(TString)(std::to_string(_run))+"] Noisy pixels (responded more than 1%) for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; nb of pixels [%] ", ((_max_param_val-_min_param_val))+1, _min_param_val, _max_param_val+1 );
-	h_very_noisy_pixels = new TH1D("h_very_noisy_pixels", "["+(TString)(std::to_string(_run))+"] Noisy pixels (responded more than 1%%) for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; nb of pixels [%] ", ((_max_param_val-_min_param_val))+1, _min_param_val, _max_param_val+1 );
+	h_fake_rate			= new TH1D("h_fake_rate", "["+(TString)(std::to_string(_run))+"] Fake rate for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; fake rate [%] ", _v_param_values.size(), _min_param_val, _max_param_val+1 );
+	h_noisy_pixels 		= new TH1D("h_noisy_pixels", "["+(TString)(std::to_string(_run))+"] Noisy pixels (responded more than 1%) for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; nb of pixels [%] ", _v_param_values.size(), _min_param_val, _max_param_val+1 );
+	h_very_noisy_pixels = new TH1D("h_very_noisy_pixels", "["+(TString)(std::to_string(_run))+"] Noisy pixels (responded more than 1%%) for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; nb of pixels [%] ", _v_param_values.size(), _min_param_val, _max_param_val+1 );
 	h_hit_rate 			= new TH1D("h_hit_rate", "["+(TString)(std::to_string(_run))+"] Hit rate for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) + ") ; "+ (TString)(_param_3) +" [LSB] ; nb of pixels [#] ", ((_max_param_val-_min_param_val))+2, _min_param_val, _max_param_val+2 );
 
 	
@@ -215,7 +215,7 @@ void HistoPlotter::copy_histos()
 void HistoPlotter::fake_rate()
 {	
 	
-	double norm = _v_MIM_int_frame.size()*_frames_in_run*(_row_end-_row_start)*(_column_end-_column_start);
+	double norm = _frames_in_run*(_row_end-_row_start)*(_column_end-_column_start);
 	double nb_pix_norm = (_row_end-_row_start)*(_column_end-_column_start);
 	//std::cout << "A 1: " << _v_MIM_int_frame.size() << "\t" << nb_of_frames << std::endl;
 	int row_bin {0};
