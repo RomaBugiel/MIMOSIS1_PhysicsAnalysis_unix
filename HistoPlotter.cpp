@@ -586,6 +586,12 @@ void HistoPlotter::save_png()
 	h_chi2->SetFillStyle(3244);
 	h_chi2->Draw();
 	c->Print(_output_full_name+"_h_chi2_log.pdf");
+
+	//This should go to another method!
+	std::ofstream outfile;
+
+	outfile.open("output_results.txt", std::ios_base::app); // append instead of overwrite
+	outfile << _param_3_value << "\t" << h_mu->GetMean() << "\t" << h_mu->GetRMS() << "\t" << h_noise_sigma->GetMean() << "\t" << h2_not_saturated_pix->GetEntries() << "\t" << _run << std::endl; 
 }
 
 		
