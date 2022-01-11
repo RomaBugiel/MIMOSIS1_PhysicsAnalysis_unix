@@ -172,6 +172,7 @@ void HistoPlotter::init_histo()
 	//TH2D
 	h2_noise_sigma 		= new TH2D("h2_noise_sigma", "["+(TString)(std::to_string(_run))+"] Pixels noise map for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) +  ") ; column; row", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1);
 	h2_mu				= new TH2D("h2_mu", "["+(TString)(std::to_string(_run))+"] Pixels threshold map for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) +  ") ; column; row", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1);
+	//h2_mu				= new TH2D("h2_mu", "["+(TString)(std::to_string(_run))+"] Pixels threshold map for " + (TString)(_scaned_param) + " scan (" + (TString)(_output_tree_file_part) +  ") ; column; row", 62, _column_start, _column_end+1, 64, _row_start, _row_end+1);
 	//h2_activated_pixels = new TH2D("h2_activated_pixels", "Map of selected pixels activated for analysis", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); <
 	//h2_masked_pixels 	= new TH2D("h2_masked_pixels", "Map of masked pixels", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); <
 	h2_empty_pix 		= new TH2D("h2_empty_pix", "["+(TString)(std::to_string(_run))+"] Empty pixels (no data from converter)", nb_of_bins_x, _column_start, _column_end+1, nb_of_bins_y, _row_start, _row_end+1); 
@@ -519,6 +520,7 @@ void HistoPlotter::save_png()
 	c->Clear(); c->cd();
 	h2_mu->SetMinimum(_min_param_val);
 	h2_mu->SetMaximum(h_mu->GetMean()+6*h_mu->GetRMS());
+	
 	//h2_mu->GetXaxis()->SetLabelSize(0.06); 	h2_mu->GetYaxis()->SetLabelSize(0.06);
 	//h2_mu->GetXaxis()->SetTitleSize(0.06); 	h2_mu->GetYaxis()->SetTitleSize(0.06);
 	h2_mu->Draw("COLZ");
@@ -528,7 +530,7 @@ void HistoPlotter::save_png()
 
 	c->Clear(); c->cd();
 	h2_noise_sigma->SetMinimum(0);
-	h2_noise_sigma->SetMaximum(10);
+	h2_noise_sigma->SetMaximum(50);
 	//h2_noise_sigma->GetXaxis()->SetLabelSize(0.06); 	h2_noise_sigma->GetYaxis()->SetLabelSize(0.06);
 	//h2_noise_sigma->GetXaxis()->SetTitleSize(0.06); 	h2_noise_sigma->GetYaxis()->SetTitleSize(0.06);
 	h2_noise_sigma->Draw("COLZ");
@@ -591,7 +593,8 @@ void HistoPlotter::save_png()
 	std::ofstream outfile;
 
 	outfile.open("output_results.txt", std::ios_base::app); // append instead of overwrite
-	outfile << _param_3_value << "\t" << h_mu->GetMean() << "\t" << h_mu->GetRMS() << "\t" << h_noise_sigma->GetMean() << "\t" << h2_not_saturated_pix->GetEntries() << "\t" << _run << std::endl; 
+
+	outfile << _param_3_value << "\t" << h_mu->GetMean() << "\t" << h_mu->GetRMS() << "\t" << h_noise_sigma->GetMean() << "\t" << h2_not_saturated_pix->GetEntries() << "\t" << h_mu->GetEntries() << "\t" << _run << std::endl; 
 }
 
 		
@@ -787,4 +790,4 @@ void HistoPlotter::fit_S_curves()
 	MSG(WARN, "Pixels with mean larger than " + std::to_string(_max_param_val) + ": "  +  std::to_string( badmean));
 
 	std::cout << "generate_S_curves() time: "; benchmark->Show("SearchTime");	
-}*/
+}*///

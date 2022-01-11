@@ -1,21 +1,28 @@
 #!/bin/bash
 
-run=23006
-chip=23
+
+run=44390
+i=0
+
+for vthreshold in {98..98..3}
+do 
+
+run=`expr $i + $run`
+
+chip=44
 matrix='B'
 
-VCASN=110
+VCASN=${vthreshold}
 backbias=1000
 
 val_min=0
-val_max=195
+val_max=245
 step=5
 
 row_start=1
 row_end=503
 
-vplvph_shift=79
-
+vplvph_shift=255
 
 #column_start=0
 #column_end=127
@@ -55,7 +62,8 @@ rm 	config_file.cfg
 touch 	config_file.cfg
 
 
-echo "_input_file_masked_pixel:	./masked/masked_pixels_no${chip}_${matrix}_${VCASN}_${backbias}.txt" >> config_file.cfg	
+#echo "_input_file_masked_pixel:	./masked/masked_pixels_no44_C_165_3000.txt" >> config_file.cfg	
+echo "_input_file_masked_pixel:	./masked/empty.txt" >> config_file.cfg	
 
 echo "_active_selected:		0" >> config_file.cfg		
 echo "_input_file_active_selected:	active_selected.txt" >> config_file.cfg	
@@ -121,9 +129,10 @@ echo "_threshold_cut_high:		10000000" >> config_file.cfg
 echo "" 
 echo "ANALYSIS DONE -- CHECK RESULTS"
 
-#i=1
+i=1
 
-#done
+done
+
 
 
 
